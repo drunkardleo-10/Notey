@@ -1,0 +1,23 @@
+:root {
+  --color-yellow: #FDC844;
+  --color-coral: #FF8A80;
+  --color-mint: #80E5D0;
+  --color-blue: #82B1FF;
+  --color-lavender: #CE93D8;
+
+  --color-cream: #F5EFE6;
+  --color-cream-card: #FAF6EE;
+  --color-cream-hover: #EBE3D7;
+  --color-teal-start: #3A7377;
+  --color-teal-end: #1E3F43;
+
+  --color-text-primary: #2C2622;
+  --color-text-muted: #8C827A;
+  --color-text-danger: #D32F2F;
+
+  --color-border: rgba(44, 38, 34, 0.12);
+  --color-border-subtle: rgba(44, 38, 34, 0.06);
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-note: "Caveat", "Noteworthy", "Chalkboard SE", cursive;
+}
