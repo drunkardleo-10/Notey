@@ -51,10 +51,10 @@ pub fn set_window_mode(app: AppHandle, mode: String) -> Result<(), String> {
                     (w, h, x, y)
                 }
                 "editor" => {
-                    let w = 480.0;
-                    let h = screen_h * 0.85;
-                    let x = screen_x + screen_w - w;
-                    let y = screen_y + (screen_h - h) / 2.0;
+                    let w = screen_w;
+                    let h = screen_h;
+                    let x = screen_x;
+                    let y = screen_y;
                     (w, h, x, y)
                 }
                 "deck_hover" => {

@@ -148,6 +148,8 @@
       await invoke('set_note_pinned', { pinned: false });
     } catch {
     }
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', handlePointerUp);
     if (armTimer) {
       clearTimeout(armTimer);
     }
@@ -181,10 +183,8 @@
 
   function handlePointerMove(e: PointerEvent) {
     if (!isDragging) return;
-    const nextX = startDragX + (e.clientX - startPointerX);
-    const nextY = startDragY + (e.clientY - startPointerY);
-    dragX = Math.max(-32, Math.min(32, nextX));
-    dragY = Math.max(-200, Math.min(200, nextY));
+    dragX = startDragX + (e.clientX - startPointerX);
+    dragY = startDragY + (e.clientY - startPointerY);
   }
 
   function handlePointerUp() {

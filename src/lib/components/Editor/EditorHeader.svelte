@@ -19,9 +19,18 @@
     title = target.value;
     ontitlechange?.(target.value);
   }
+
+  function handleHeaderPointerDown(e: PointerEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input')) {
+      return;
+    }
+    ondragstart?.(e);
+  }
 </script>
 
-<header class="editor-header">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<header class="editor-header" onpointerdown={handleHeaderPointerDown}>
   <div class="header-left">
     <div class="dot-indicators">
       <button
@@ -78,6 +87,11 @@
     padding: 12px 16px 8px 16px;
     gap: 12px;
     user-select: none;
+    cursor: grab;
+  }
+
+  .editor-header:active {
+    cursor: grabbing;
   }
 
   .header-left {
