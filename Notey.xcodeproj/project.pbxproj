@@ -1,0 +1,601 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00792F49A3F216E82D3F3666 /* OnboardingPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */; };
+		0274A986918B2E1974A1557C /* OnboardingStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AADE72DFB61179FB6F37B7 /* OnboardingStageView.swift */; };
+		056B3B94F687BE494493CA3D /* EdgeDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C8F080ECE84192F93CEBEB /* EdgeDeckView.swift */; };
+		19BD063EDFF255ABB9BD1F59 /* WindowModeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */; };
+		21B3CF199AF4F3162D43293C /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F0529C13C77DD962956D78 /* StatusBarController.swift */; };
+		35E7338FEC5D675426D4DE33 /* EditorHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5BD8703571D3294A436AE5 /* EditorHeaderView.swift */; };
+		447469F3687FF7851A3178A3 /* EditorToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60251944EC87E6C3444CBBA1 /* EditorToolbarView.swift */; };
+		4576CA4460794EABB6CFF4E7 /* ScreenUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE391EC529FAC3809D4E22CA /* ScreenUtilities.swift */; };
+		5676BE6C90372D2D90F826A8 /* JsonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */; };
+		610F3CA1FD5F358C654F3131 /* NoteyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0C02ACB41BDE430274DF40 /* NoteyTests.swift */; };
+		66970A43E901BCE2432C1845 /* NoteyPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */; };
+		6719C582A2AEE2C040C27A70 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D275F3A77E1ABF4BC68C3450 /* ArchiveView.swift */; };
+		70E55C5CDB5BFC68F9FAB72A /* NoteBodyEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AC871024523B7EE2BFE429 /* NoteBodyEditorView.swift */; };
+		78E0DD7492E25DA3A1E4CB74 /* AutostartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A827202158937C7D01D82601 /* AutostartManager.swift */; };
+		7BC20BF2AA3511A824DFB247 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18152C3DC683D1A9B6A73B2E /* OnboardingView.swift */; };
+		80D7370D5072DEC847AC6992 /* EditorPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A68F2FAABE858409EFF591E /* EditorPanelController.swift */; };
+		90CED88D9B7106B1B26A87AA /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03197B6BBF2D04467B3F199B /* HotKeyManager.swift */; };
+		9C8D40A925976C767C459200 /* ArchivePanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A819B736280B094DD52C86FC /* ArchivePanelController.swift */; };
+		A079D64AAFCAA739D1EE26FF /* CollapsedTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD47996CC765C7FE9AAB2BEF /* CollapsedTabView.swift */; };
+		A3D43FA26C4F5C64151CE21D /* MarkdownUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498BC43193C7B9CE6FDD5259 /* MarkdownUtilities.swift */; };
+		A57CB5F8725AF0B40C3EFC20 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333823D4521AFCD647BC0807 /* Note.swift */; };
+		AFE1BF8CBEB9276A7E60A914 /* NoteyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE94D1A1E5562A808603176 /* NoteyApp.swift */; };
+		B3824EF094A935D08524B982 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD707070649081441ED9572A /* NoteEditorView.swift */; };
+		B784225B12C0645BFF9C7EDE /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFDEBF5C0F1F366B6059CA0 /* NoteStore.swift */; };
+		BB17F795E02371C4C480DDF4 /* EdgeAnchorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2B2BAD50C3A54E39212359 /* EdgeAnchorView.swift */; };
+		BE77BE800F5402C7A467E45E /* ArchiveListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2619FF6ABC37514A05FCF6 /* ArchiveListView.swift */; };
+		C935BFE55B77D63F07B3EE67 /* ArchiveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FDB4573B47B91BA941FB17 /* ArchiveDetailView.swift */; };
+		CFA2F51EB455EE601AD1EEA9 /* ColorSwatchPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1FBEDD98D82CF6701E02750 /* ColorSwatchPicker.swift */; };
+		DDB5B6D862C6CA1EBF5108D7 /* DeckPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42D0713A1C7EF9D49163047 /* DeckPanelController.swift */; };
+		EA1AB2C1A8BCCB3E851BFC68 /* FannedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EA244890410054EEB628FE /* FannedCardView.swift */; };
+		FDA4160CF9081306FB471205 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CAE95B6F0BCB82BC4038D9 /* DesignTokens.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D4FFC943151E1D361F72146E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5F516685AF648A5D5B8E1BC3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB7CBA6BA2567E9BA8281A27;
+			remoteInfo = Notey;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		03197B6BBF2D04467B3F199B /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
+		0EFDEBF5C0F1F366B6059CA0 /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
+		18152C3DC683D1A9B6A73B2E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		1997E30A4E5F007FECCF2E90 /* Notey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notey.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowModeManager.swift; sourceTree = "<group>"; };
+		333823D4521AFCD647BC0807 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		34FDB4573B47B91BA941FB17 /* ArchiveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDetailView.swift; sourceTree = "<group>"; };
+		3A68F2FAABE858409EFF591E /* EditorPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPanelController.swift; sourceTree = "<group>"; };
+		41CAE95B6F0BCB82BC4038D9 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteyPanel.swift; sourceTree = "<group>"; };
+		498BC43193C7B9CE6FDD5259 /* MarkdownUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownUtilities.swift; sourceTree = "<group>"; };
+		57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPanelController.swift; sourceTree = "<group>"; };
+		5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonStore.swift; sourceTree = "<group>"; };
+		60251944EC87E6C3444CBBA1 /* EditorToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolbarView.swift; sourceTree = "<group>"; };
+		9B2619FF6ABC37514A05FCF6 /* ArchiveListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveListView.swift; sourceTree = "<group>"; };
+		A1FBEDD98D82CF6701E02750 /* ColorSwatchPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSwatchPicker.swift; sourceTree = "<group>"; };
+		A819B736280B094DD52C86FC /* ArchivePanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePanelController.swift; sourceTree = "<group>"; };
+		A827202158937C7D01D82601 /* AutostartManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutostartManager.swift; sourceTree = "<group>"; };
+		AD707070649081441ED9572A /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
+		AE391EC529FAC3809D4E22CA /* ScreenUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenUtilities.swift; sourceTree = "<group>"; };
+		AEE94D1A1E5562A808603176 /* NoteyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteyApp.swift; sourceTree = "<group>"; };
+		AF0C02ACB41BDE430274DF40 /* NoteyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteyTests.swift; sourceTree = "<group>"; };
+		C1AC871024523B7EE2BFE429 /* NoteBodyEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteBodyEditorView.swift; sourceTree = "<group>"; };
+		C42D0713A1C7EF9D49163047 /* DeckPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckPanelController.swift; sourceTree = "<group>"; };
+		D275F3A77E1ABF4BC68C3450 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
+		D5AADE72DFB61179FB6F37B7 /* OnboardingStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStageView.swift; sourceTree = "<group>"; };
+		DD47996CC765C7FE9AAB2BEF /* CollapsedTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsedTabView.swift; sourceTree = "<group>"; };
+		E8F0529C13C77DD962956D78 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		E9F80EE9A48AFE406911B871 /* Notey.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Notey.entitlements; sourceTree = "<group>"; };
+		ED2B2BAD50C3A54E39212359 /* EdgeAnchorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeAnchorView.swift; sourceTree = "<group>"; };
+		F3C8F080ECE84192F93CEBEB /* EdgeDeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDeckView.swift; sourceTree = "<group>"; };
+		F8EA244890410054EEB628FE /* FannedCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FannedCardView.swift; sourceTree = "<group>"; };
+		FDF57C7222EF24EBE401B43D /* NoteyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE5BD8703571D3294A436AE5 /* EditorHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorHeaderView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0903BD4A9DF7A446BEB93EC9 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		2A9B434D483B53DA4342FC49 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				A1FBEDD98D82CF6701E02750 /* ColorSwatchPicker.swift */,
+				FE5BD8703571D3294A436AE5 /* EditorHeaderView.swift */,
+				60251944EC87E6C3444CBBA1 /* EditorToolbarView.swift */,
+				C1AC871024523B7EE2BFE429 /* NoteBodyEditorView.swift */,
+				AD707070649081441ED9572A /* NoteEditorView.swift */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		3B7D40C61FCF5BFBB97E7578 /* NoteyTests */ = {
+			isa = PBXGroup;
+			children = (
+				AF0C02ACB41BDE430274DF40 /* NoteyTests.swift */,
+			);
+			path = NoteyTests;
+			sourceTree = "<group>";
+		};
+		5124EB8C7B21B814EFDC5EA6 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				D5AADE72DFB61179FB6F37B7 /* OnboardingStageView.swift */,
+				18152C3DC683D1A9B6A73B2E /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		56C1B6FDFC2411959AF44004 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9AE2A77690DAE58F89904340 /* Archive */,
+				FEF65069F7F9777A7209CC4D /* Deck */,
+				2A9B434D483B53DA4342FC49 /* Editor */,
+				5124EB8C7B21B814EFDC5EA6 /* Onboarding */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		65BF738CFD90FC919B7DE57A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1997E30A4E5F007FECCF2E90 /* Notey.app */,
+				FDF57C7222EF24EBE401B43D /* NoteyTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		70784FF52DC85D4DE9F3B027 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				A827202158937C7D01D82601 /* AutostartManager.swift */,
+				03197B6BBF2D04467B3F199B /* HotKeyManager.swift */,
+				E8F0529C13C77DD962956D78 /* StatusBarController.swift */,
+			);
+			path = System;
+			sourceTree = "<group>";
+		};
+		84C47460764236109F2761F0 = {
+			isa = PBXGroup;
+			children = (
+				BD1E3A9F747734172F0D5BFF /* Notey */,
+				3B7D40C61FCF5BFBB97E7578 /* NoteyTests */,
+				65BF738CFD90FC919B7DE57A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		935F9C39BC4613C2B8A91150 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				41CAE95B6F0BCB82BC4038D9 /* DesignTokens.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		939AB555C3BA08AF9F3F74D5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				333823D4521AFCD647BC0807 /* Note.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9AE2A77690DAE58F89904340 /* Archive */ = {
+			isa = PBXGroup;
+			children = (
+				34FDB4573B47B91BA941FB17 /* ArchiveDetailView.swift */,
+				9B2619FF6ABC37514A05FCF6 /* ArchiveListView.swift */,
+				D275F3A77E1ABF4BC68C3450 /* ArchiveView.swift */,
+			);
+			path = Archive;
+			sourceTree = "<group>";
+		};
+		BD1E3A9F747734172F0D5BFF /* Notey */ = {
+			isa = PBXGroup;
+			children = (
+				E9F80EE9A48AFE406911B871 /* Notey.entitlements */,
+				AEE94D1A1E5562A808603176 /* NoteyApp.swift */,
+				935F9C39BC4613C2B8A91150 /* Design */,
+				939AB555C3BA08AF9F3F74D5 /* Models */,
+				DB94F6B784AB21ED8259773C /* Panels */,
+				0903BD4A9DF7A446BEB93EC9 /* Storage */,
+				F36FAD707979F1A128FC3666 /* Store */,
+				70784FF52DC85D4DE9F3B027 /* System */,
+				BE44204CB7DB19D8EC40EC2E /* Utilities */,
+				56C1B6FDFC2411959AF44004 /* Views */,
+			);
+			path = Notey;
+			sourceTree = "<group>";
+		};
+		BE44204CB7DB19D8EC40EC2E /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				498BC43193C7B9CE6FDD5259 /* MarkdownUtilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		DB94F6B784AB21ED8259773C /* Panels */ = {
+			isa = PBXGroup;
+			children = (
+				A819B736280B094DD52C86FC /* ArchivePanelController.swift */,
+				C42D0713A1C7EF9D49163047 /* DeckPanelController.swift */,
+				3A68F2FAABE858409EFF591E /* EditorPanelController.swift */,
+				4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */,
+				57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */,
+				AE391EC529FAC3809D4E22CA /* ScreenUtilities.swift */,
+				1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */,
+			);
+			path = Panels;
+			sourceTree = "<group>";
+		};
+		F36FAD707979F1A128FC3666 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				0EFDEBF5C0F1F366B6059CA0 /* NoteStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		FEF65069F7F9777A7209CC4D /* Deck */ = {
+			isa = PBXGroup;
+			children = (
+				DD47996CC765C7FE9AAB2BEF /* CollapsedTabView.swift */,
+				ED2B2BAD50C3A54E39212359 /* EdgeAnchorView.swift */,
+				F3C8F080ECE84192F93CEBEB /* EdgeDeckView.swift */,
+				F8EA244890410054EEB628FE /* FannedCardView.swift */,
+			);
+			path = Deck;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5F735C379660F47BC243FDC8 /* NoteyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B81363F708F6166923D899EF /* Build configuration list for PBXNativeTarget "NoteyTests" */;
+			buildPhases = (
+				9A05E4C1BCAF40019DDBDE9D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				49C0890F4ABF41E1830708C2 /* PBXTargetDependency */,
+			);
+			name = NoteyTests;
+			packageProductDependencies = (
+			);
+			productName = NoteyTests;
+			productReference = FDF57C7222EF24EBE401B43D /* NoteyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CB7CBA6BA2567E9BA8281A27 /* Notey */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1C94E028ED4BCB47E659619 /* Build configuration list for PBXNativeTarget "Notey" */;
+			buildPhases = (
+				72D1E4B5B7FB9718F2D4AEFE /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Notey;
+			packageProductDependencies = (
+			);
+			productName = Notey;
+			productReference = 1997E30A4E5F007FECCF2E90 /* Notey.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5F516685AF648A5D5B8E1BC3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 20926CDE94EC363DDBF41092 /* Build configuration list for PBXProject "Notey" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 84C47460764236109F2761F0;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 65BF738CFD90FC919B7DE57A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CB7CBA6BA2567E9BA8281A27 /* Notey */,
+				5F735C379660F47BC243FDC8 /* NoteyTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		72D1E4B5B7FB9718F2D4AEFE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C935BFE55B77D63F07B3EE67 /* ArchiveDetailView.swift in Sources */,
+				BE77BE800F5402C7A467E45E /* ArchiveListView.swift in Sources */,
+				9C8D40A925976C767C459200 /* ArchivePanelController.swift in Sources */,
+				6719C582A2AEE2C040C27A70 /* ArchiveView.swift in Sources */,
+				78E0DD7492E25DA3A1E4CB74 /* AutostartManager.swift in Sources */,
+				A079D64AAFCAA739D1EE26FF /* CollapsedTabView.swift in Sources */,
+				CFA2F51EB455EE601AD1EEA9 /* ColorSwatchPicker.swift in Sources */,
+				DDB5B6D862C6CA1EBF5108D7 /* DeckPanelController.swift in Sources */,
+				FDA4160CF9081306FB471205 /* DesignTokens.swift in Sources */,
+				BB17F795E02371C4C480DDF4 /* EdgeAnchorView.swift in Sources */,
+				056B3B94F687BE494493CA3D /* EdgeDeckView.swift in Sources */,
+				35E7338FEC5D675426D4DE33 /* EditorHeaderView.swift in Sources */,
+				80D7370D5072DEC847AC6992 /* EditorPanelController.swift in Sources */,
+				447469F3687FF7851A3178A3 /* EditorToolbarView.swift in Sources */,
+				EA1AB2C1A8BCCB3E851BFC68 /* FannedCardView.swift in Sources */,
+				90CED88D9B7106B1B26A87AA /* HotKeyManager.swift in Sources */,
+				5676BE6C90372D2D90F826A8 /* JsonStore.swift in Sources */,
+				A3D43FA26C4F5C64151CE21D /* MarkdownUtilities.swift in Sources */,
+				A57CB5F8725AF0B40C3EFC20 /* Note.swift in Sources */,
+				70E55C5CDB5BFC68F9FAB72A /* NoteBodyEditorView.swift in Sources */,
+				B3824EF094A935D08524B982 /* NoteEditorView.swift in Sources */,
+				B784225B12C0645BFF9C7EDE /* NoteStore.swift in Sources */,
+				AFE1BF8CBEB9276A7E60A914 /* NoteyApp.swift in Sources */,
+				66970A43E901BCE2432C1845 /* NoteyPanel.swift in Sources */,
+				00792F49A3F216E82D3F3666 /* OnboardingPanelController.swift in Sources */,
+				0274A986918B2E1974A1557C /* OnboardingStageView.swift in Sources */,
+				7BC20BF2AA3511A824DFB247 /* OnboardingView.swift in Sources */,
+				4576CA4460794EABB6CFF4E7 /* ScreenUtilities.swift in Sources */,
+				21B3CF199AF4F3162D43293C /* StatusBarController.swift in Sources */,
+				19BD063EDFF255ABB9BD1F59 /* WindowModeManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A05E4C1BCAF40019DDBDE9D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				610F3CA1FD5F358C654F3131 /* NoteyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		49C0890F4ABF41E1830708C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB7CBA6BA2567E9BA8281A27 /* Notey */;
+			targetProxy = D4FFC943151E1D361F72146E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0A34B9EAC3B5704F01CF319F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = Notey;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		19A092ECD25F4E981CA3645D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Notey/Notey.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Notey/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.notey.app;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		453295629372BE76235098A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.notey.app.tests;
+				PRODUCT_MODULE_NAME = NoteyTests;
+				PRODUCT_NAME = NoteyTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Notey.app/Contents/MacOS/Notey";
+			};
+			name = Debug;
+		};
+		69A7A1C2618CA58E21941018 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.notey.app.tests;
+				PRODUCT_MODULE_NAME = NoteyTests;
+				PRODUCT_NAME = NoteyTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Notey.app/Contents/MacOS/Notey";
+			};
+			name = Release;
+		};
+		6D9A251059E705E861CFF5CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = Notey;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		7239B4F233A14659A89E0B4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Notey/Notey.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Notey/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.notey.app;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20926CDE94EC363DDBF41092 /* Build configuration list for PBXProject "Notey" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A34B9EAC3B5704F01CF319F /* Debug */,
+				6D9A251059E705E861CFF5CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B81363F708F6166923D899EF /* Build configuration list for PBXNativeTarget "NoteyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				453295629372BE76235098A2 /* Debug */,
+				69A7A1C2618CA58E21941018 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E1C94E028ED4BCB47E659619 /* Build configuration list for PBXNativeTarget "Notey" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19A092ECD25F4E981CA3645D /* Debug */,
+				7239B4F233A14659A89E0B4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5F516685AF648A5D5B8E1BC3 /* Project object */;
+}
