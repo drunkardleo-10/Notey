@@ -5,53 +5,34 @@ struct EdgeAnchorView: View {
     var onAddNote: (() -> Void)?
 
     var body: some View {
-        VStack(spacing: 8) {
-            Button(action: { onAddNote?() }) {
-                Image(systemName: "plus")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Color.textPrimary)
-                    .frame(width: 28, height: 28)
-                    .background(
-                        Circle()
-                            .fill(Color(hex: 0xF5EFE6).opacity(0.95))
-                            .shadow(
-                                color: Color.textPrimary.opacity(0.15),
-                                radius: 3, x: 0, y: 1
-                            )
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(Color.textPrimary.opacity(0.15), lineWidth: 1)
-                    )
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .accessibilityLabel("Add new note")
-            .opacity(isDeckHovered ? 1 : 0)
-            .scaleEffect(isDeckHovered ? 1 : 0.6)
-
-            HStack(spacing: 3) {
-                VStack(spacing: 3) {
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                }
-                VStack(spacing: 3) {
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                    Circle().fill(Color.textPrimary.opacity(0.45)).frame(width: 3.5, height: 3.5)
-                }
-            }
-            .frame(width: 20, height: 20)
+        Button(action: { onAddNote?() }) {
+            Image(systemName: "plus")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.textPrimary)
+                .frame(width: 28, height: 28)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(0.96))
+                        .shadow(
+                            color: Color.black.opacity(0.14),
+                            radius: 3, x: 0, y: 1.5
+                        )
+                )
+                .overlay(
+                    Circle()
+                        .stroke(Color.textPrimary.opacity(0.12), lineWidth: 0.8)
+                )
         }
-        .frame(width: isDeckHovered ? 34 : 12)
-        .animation(.noteySpring, value: isDeckHovered)
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel("Add new note")
+        .frame(width: NoteyLayout.tabPeekingWidth, height: 32)
     }
 }
 
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
             .animation(.noteyQuick, value: configuration.isPressed)
     }
 }

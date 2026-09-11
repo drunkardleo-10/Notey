@@ -15,13 +15,15 @@ struct CollapsedTabView: View {
             return "NOTE"
         }
         let firstWord = trimmed.components(separatedBy: " ").first ?? "NOTE"
-        return firstWord.uppercased()
+        let upper = firstWord.uppercased()
+        if upper.count > 8 {
+            return String(upper.prefix(7))
+        }
+        return upper
     }
 
     private var state: TabState {
-        if isCardExpanded { return .expanded }
-        if isDeckHovered { return .peeking }
-        return .idle
+        isCardExpanded ? .expanded : .peeking
     }
 
     var body: some View {
@@ -35,23 +37,35 @@ struct CollapsedTabView: View {
                 }
             }
             .frame(
-                width: state.size.width,
-                height: state.size.height,
+                width: state.width,
+                height: state.height,
                 alignment: .leading
             )
             .background(note.color.swiftUIColor)
-            .clipShape(UnevenRoundedRectangle(
-                topLeadingRadius: state.cornerRadius,
-                bottomLeadingRadius: state.cornerRadius,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: 0
+            .clipShape(TaperedTabShape(
+                topWidth: state.topWidth,
+                bottomWidth: state.bottomWidth,
+                topLeadingRadius: state.topLeadingRadius,
+                bottomLeadingRadius: state.bottomLeadingRadius
             ))
             .shadow(
-                color: Color.textPrimary.opacity(state.shadowOpacity),
-                radius: state.shadowRadius,
-                x: state.shadowX,
-                y: state.shadowY
+                color: Color.black.opacity(state.shadowAmbientOpacity),
+                radius: state.shadowAmbientRadius,
+                x: state.shadowAmbientX,
+                y: state.shadowAmbientY
             )
+            .shadow(
+                color: Color.black.opacity(state.shadowKeyOpacity),
+                radius: state.shadowKeyRadius,
+                x: state.shadowKeyX,
+                y: state.shadowKeyY
+            )
+            .contentShape(TaperedTabShape(
+                topWidth: state.topWidth,
+                bottomWidth: state.bottomWidth,
+                topLeadingRadius: state.topLeadingRadius,
+                bottomLeadingRadius: state.bottomLeadingRadius
+            ))
         }
         .buttonStyle(.plain)
         .onHover { hovering in
@@ -71,15 +85,14 @@ struct CollapsedTabView: View {
             Text(tabLabel)
                 .font(NoteyFonts.ui(size: 11, weight: .heavy))
                 .tracking(1.4)
-                .foregroundStyle(Color.textPrimary.opacity(0.75))
-                .rotationEffect(.degrees(90))
+                .foregroundStyle(Color.textPrimary.opacity(0.72))
                 .fixedSize()
                 .lineLimit(1)
-                .frame(maxHeight: 80)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.top, 14)
-                .padding(.trailing, 6)
-                .opacity(state == .idle ? 0 : 1)
+                .rotationEffect(.degrees(-90))
+                .frame(width: 28, height: NoteyLayout.tabStepHeight)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.top, 4)
+                .padding(.leading, 2)
 
             Rectangle()
                 .fill(Color.clear)
@@ -87,44 +100,32 @@ struct CollapsedTabView: View {
                 .overlay(
                     PerforationDivider()
                         .stroke(
-                            Color.textPrimary.opacity(0.22),
-                            style: StrokeStyle(lineWidth: 1.5, dash: [3, 3])
+                            Color.textPrimary.opacity(0.20),
+                            style: StrokeStyle(lineWidth: 1.5, dash: [4.5, 3.5])
                         )
                 )
-                .padding(.trailing, 3)
-                .opacity(state == .idle ? 0 : 1)
+                .padding(.trailing, isCardExpanded ? 2 : 6)
         }
-        .frame(width: state == .idle ? NoteyLayout.tabIdleWidth : 34)
+        .frame(width: isCardExpanded ? 36 : NoteyLayout.tabPeekingWidth)
     }
 
     private var cardPreviewBody: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(note.title)
-                    .font(NoteyFonts.ui(size: 15, weight: .heavy))
-                    .foregroundStyle(Color.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+            Text(note.title.isEmpty ? "Untitled note" : note.title)
+                .font(NoteyFonts.ui(size: 15, weight: .bold))
+                .foregroundStyle(Color.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.top, 2)
 
-                Spacer(minLength: 4)
-
-                Text(relativeDateString(for: note.updatedAt))
-                    .font(NoteyFonts.ui(size: 11, weight: .semibold))
-                    .foregroundStyle(Color.textPrimary.opacity(0.45))
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 ForEach(previewItems) { item in
-                    HStack(spacing: 7) {
+                    HStack(spacing: 6) {
                         if item.isTask {
                             checkboxIcon(completed: item.isCompleted)
-                        } else if item.isBullet {
-                            Text("•")
-                                .font(NoteyFonts.note(size: 14))
-                                .foregroundStyle(Color.textPrimary.opacity(0.75))
                         }
                         Text(item.attributedText)
-                            .font(NoteyFonts.note(size: 14))
+                            .font(NoteyFonts.note(size: 15))
                             .foregroundStyle(Color.textPrimary)
                             .strikethrough(item.isCompleted)
                             .opacity(item.isCompleted ? 0.55 : 1)
@@ -136,39 +137,28 @@ struct CollapsedTabView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 10))
+        .padding(.init(top: 14, leading: 12, bottom: 12, trailing: 12))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-
-    private func relativeDateString(for date: Date) -> String {
-        let seconds = -date.timeIntervalSinceNow
-        if seconds < 60 { return "now" }
-        let minutes = Int(seconds / 60)
-        if minutes < 60 { return "\(minutes)m" }
-        let hours = Int(seconds / 3600)
-        if hours < 24 { return "\(hours)h" }
-        let days = Int(seconds / 86400)
-        return "\(days)d"
     }
 
     private func checkboxIcon(completed: Bool) -> some View {
         ZStack {
             if completed {
-                RoundedRectangle(cornerRadius: 4.5)
+                RoundedRectangle(cornerRadius: 3.5)
                     .fill(Color.textPrimary)
-                    .frame(width: 17, height: 17)
+                    .frame(width: 14, height: 14)
 
                 Image(systemName: "checkmark")
-                    .font(.system(size: 9.5, weight: .black))
+                    .font(.system(size: 8.5, weight: .black))
                     .foregroundStyle(note.color.swiftUIColor)
             } else {
-                RoundedRectangle(cornerRadius: 4.5)
-                    .stroke(Color.textPrimary.opacity(0.42), lineWidth: 1.8)
+                RoundedRectangle(cornerRadius: 3.5)
+                    .stroke(Color.textPrimary.opacity(0.45), lineWidth: 1.5)
                     .background(
-                        RoundedRectangle(cornerRadius: 4.5)
+                        RoundedRectangle(cornerRadius: 3.5)
                             .fill(Color.textPrimary.opacity(0.06))
                     )
-                    .frame(width: 17, height: 17)
+                    .frame(width: 14, height: 14)
             }
         }
     }
@@ -194,7 +184,6 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: true,
                     isCompleted: isDone,
-                    isBullet: false,
                     attributedText: parseInlineMarkdown(text)
                 ))
             } else if trimmed.hasPrefix("☐ ") || trimmed.hasPrefix("☑ ") {
@@ -204,16 +193,6 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: true,
                     isCompleted: isDone,
-                    isBullet: false,
-                    attributedText: parseInlineMarkdown(text)
-                ))
-            } else if trimmed.hasPrefix("- ") || trimmed.hasPrefix("* ") || trimmed.hasPrefix("• ") {
-                let text = String(trimmed.dropFirst(2)).trimmingCharacters(in: .whitespaces)
-                result.append(PreviewItem(
-                    id: idx,
-                    isTask: false,
-                    isCompleted: false,
-                    isBullet: true,
                     attributedText: parseInlineMarkdown(text)
                 ))
             } else {
@@ -221,7 +200,6 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: false,
                     isCompleted: false,
-                    isBullet: false,
                     attributedText: parseInlineMarkdown(trimmed)
                 ))
             }
@@ -242,61 +220,152 @@ private struct PreviewItem: Identifiable {
     let id: Int
     let isTask: Bool
     let isCompleted: Bool
-    let isBullet: Bool
     let attributedText: AttributedString
 }
 
 private enum TabState: Equatable {
-    case idle
     case peeking
     case expanded
 
-    var size: CGSize {
+    var width: CGFloat {
         switch self {
-        case .idle:     return CGSize(width: NoteyLayout.tabIdleWidth, height: NoteyLayout.tabIdleHeight)
-        case .peeking:  return CGSize(width: NoteyLayout.tabPeekingWidth, height: NoteyLayout.tabPeekingHeight)
-        case .expanded: return CGSize(width: NoteyLayout.tabExpandedWidth, height: NoteyLayout.tabExpandedHeight)
+        case .peeking:  return NoteyLayout.tabPeekingWidth
+        case .expanded: return NoteyLayout.tabExpandedWidth
         }
     }
 
-    var cornerRadius: CGFloat {
+    var topWidth: CGFloat {
         switch self {
-        case .idle:     return 4
+        case .peeking:  return NoteyLayout.tabPeekingWidth
+        case .expanded: return NoteyLayout.tabExpandedWidth
+        }
+    }
+
+    var bottomWidth: CGFloat {
+        switch self {
+        case .peeking:  return NoteyLayout.tabPeekingBottomWidth
+        case .expanded: return NoteyLayout.tabExpandedWidth
+        }
+    }
+
+    var height: CGFloat {
+        NoteyLayout.tabPeekingHeight
+    }
+
+    var topLeadingRadius: CGFloat {
+        switch self {
+        case .peeking:  return 16
+        case .expanded: return 18
+        }
+    }
+
+    var bottomLeadingRadius: CGFloat {
+        switch self {
         case .peeking:  return 14
         case .expanded: return 18
         }
     }
 
-    var shadowOpacity: Double {
+    var shadowAmbientOpacity: Double {
         switch self {
-        case .idle:     return 0.16
         case .peeking:  return 0.16
-        case .expanded: return 0.24
+        case .expanded: return 0.26
         }
     }
 
-    var shadowRadius: CGFloat {
+    var shadowAmbientRadius: CGFloat {
         switch self {
-        case .idle:     return 4
-        case .peeking:  return 4
-        case .expanded: return 12
+        case .peeking:  return 6
+        case .expanded: return 18
         }
     }
 
-    var shadowX: CGFloat {
+    var shadowAmbientX: CGFloat {
         switch self {
-        case .idle:     return -1
+        case .peeking:  return -2
+        case .expanded: return -4
+        }
+    }
+
+    var shadowAmbientY: CGFloat {
+        switch self {
+        case .peeking:  return 3
+        case .expanded: return 6
+        }
+    }
+
+    var shadowKeyOpacity: Double {
+        switch self {
+        case .peeking:  return 0.12
+        case .expanded: return 0.20
+        }
+    }
+
+    var shadowKeyRadius: CGFloat {
+        switch self {
+        case .peeking:  return 2
+        case .expanded: return 5
+        }
+    }
+
+    var shadowKeyX: CGFloat {
+        switch self {
         case .peeking:  return -1
-        case .expanded: return -2.5
+        case .expanded: return -2
         }
     }
 
-    var shadowY: CGFloat {
+    var shadowKeyY: CGFloat {
         switch self {
-        case .idle:     return 1.5
-        case .peeking:  return 1.5
-        case .expanded: return 4
+        case .peeking:  return 1
+        case .expanded: return 3
         }
+    }
+}
+
+struct TaperedTabShape: Shape {
+    var topWidth: CGFloat
+    var bottomWidth: CGFloat
+    var topLeadingRadius: CGFloat
+    var bottomLeadingRadius: CGFloat
+
+    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>> {
+        get {
+            AnimatablePair(
+                AnimatablePair(topWidth, bottomWidth),
+                AnimatablePair(topLeadingRadius, bottomLeadingRadius)
+            )
+        }
+        set {
+            topWidth = newValue.first.first
+            bottomWidth = newValue.first.second
+            topLeadingRadius = newValue.second.first
+            bottomLeadingRadius = newValue.second.second
+        }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        let rTop = max(0, min(topLeadingRadius, topWidth / 2, rect.height / 2))
+        let rBottom = max(0, min(bottomLeadingRadius, bottomWidth / 2, rect.height / 2))
+        let topX = rect.maxX - topWidth
+        let bottomX = rect.maxX - bottomWidth
+
+        var path = Path()
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: topX + rTop, y: rect.minY))
+        path.addArc(
+            tangent1End: CGPoint(x: topX, y: rect.minY),
+            tangent2End: CGPoint(x: bottomX, y: rect.maxY),
+            radius: rTop
+        )
+        path.addArc(
+            tangent1End: CGPoint(x: bottomX, y: rect.maxY),
+            tangent2End: CGPoint(x: rect.maxX, y: rect.maxY),
+            radius: rBottom
+        )
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
 

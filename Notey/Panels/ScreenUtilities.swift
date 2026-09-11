@@ -57,10 +57,10 @@ enum ScreenUtilities {
         let scr = screen(for: window)
         let f = scr.frame
         let count = max(1, noteCount)
-        let tabHeight = NoteyLayout.tabIdleHeight
-        let spacing: CGFloat = 6
-        let anchorHeight: CGFloat = 36
-        let h = CGFloat(count) * tabHeight + CGFloat(count - 1) * spacing + 12 + anchorHeight + 16
+        let pillHeight = NoteyLayout.tabIdleHeight
+        let spacing: CGFloat = 5.5
+        let padding: CGFloat = 12
+        let h = CGFloat(count) * pillHeight + CGFloat(count - 1) * spacing + padding
         let x = f.origin.x + f.width - NoteyLayout.deckIdleWidth
         let y = f.origin.y + (f.height - h) / 2.0
         return CGRect(x: x, y: y, width: NoteyLayout.deckIdleWidth, height: h)
@@ -70,12 +70,11 @@ enum ScreenUtilities {
         let scr = screen(for: window)
         let f = scr.frame
         let count = max(1, noteCount)
-        let tabHeight = NoteyLayout.tabPeekingHeight
-        let spacing: CGFloat = 6
-        let anchorHeight: CGFloat = 72
-        let tabsHeight = CGFloat(count) * tabHeight + CGFloat(count - 1) * spacing
-        let minExpandedHeight = NoteyLayout.tabExpandedHeight + anchorHeight + 24
-        let h = max(tabsHeight + 12 + anchorHeight + 24, minExpandedHeight)
+        let step = NoteyLayout.tabStepHeight
+        let baseHeight = NoteyLayout.tabPeekingHeight
+        let tabsHeight = CGFloat(count - 1) * step + baseHeight
+        let anchorHeight: CGFloat = 44
+        let h = tabsHeight + anchorHeight + 30
         let x = f.origin.x + f.width - NoteyLayout.deckHoverWidth
         let y = f.origin.y + (f.height - h) / 2.0
         return CGRect(x: x, y: y, width: NoteyLayout.deckHoverWidth, height: h)

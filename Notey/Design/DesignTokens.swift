@@ -156,14 +156,18 @@ extension Animation {
 }
 
 enum NoteyLayout {
-    static let deckIdleWidth: CGFloat = 16
+    static let deckIdleWidth: CGFloat = 14
     static let deckHoverWidth: CGFloat = 240
     static let deckHeightRatio: CGFloat = 0.85
 
-    static let tabIdleWidth: CGFloat = 8
-    static let tabIdleHeight: CGFloat = 34
-    static let tabPeekingWidth: CGFloat = 34
-    static let tabPeekingHeight: CGFloat = 74
+    static let tabIdleWidth: CGFloat = 6
+    static let tabIdleHeight: CGFloat = 16
+    static let tabIdlePillWidth: CGFloat = 6
+    static let tabIdlePillHeight: CGFloat = 16
+    static let tabPeekingWidth: CGFloat = 44
+    static let tabPeekingBottomWidth: CGFloat = 36
+    static let tabPeekingHeight: CGFloat = 150
+    static let tabStepHeight: CGFloat = 70
     static let tabExpandedWidth: CGFloat = 195
     static let tabExpandedHeight: CGFloat = 150
 
