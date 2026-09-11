@@ -24,26 +24,6 @@ struct EditorHeaderView: View {
                 Spacer(minLength: 0)
 
                 HStack(spacing: 8) {
-                    Button(action: { onUndo?() }) {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.textPrimary.opacity(0.65))
-                            .frame(width: 22, height: 22)
-                            .background(Circle().fill(Color.textPrimary.opacity(0.06)))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Undo")
-
-                    Button(action: { onRedo?() }) {
-                        Image(systemName: "arrow.uturn.forward")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.textPrimary.opacity(0.65))
-                            .frame(width: 22, height: 22)
-                            .background(Circle().fill(Color.textPrimary.opacity(0.06)))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Redo")
-
                     WindowDragGripView()
                         .frame(width: 28, height: 28)
                         .onHover { hovering in
@@ -119,8 +99,8 @@ struct WindowDragGripView: NSViewRepresentable {
 }
 
 final class DragGripNSView: NSView {
-    private var initialMouseScreen: NSPoint = .zero
-    private var initialWindowOrigin: NSPoint = .zero
+    private var isHovered: Bool = false
+    private var isCursorPushed: Bool = false
     private var trackingArea: NSTrackingArea?
 
     override func updateTrackingAreas() {
@@ -144,11 +124,23 @@ final class DragGripNSView: NSView {
     }
 
     override func mouseEntered(with event: NSEvent) {
-        NSCursor.openHand.push()
+        super.mouseEntered(with: event)
+        isHovered = true
+        if !isCursorPushed {
+            NSCursor.openHand.push()
+            isCursorPushed = true
+        }
+        needsDisplay = true
     }
 
     override func mouseExited(with event: NSEvent) {
-        NSCursor.pop()
+        super.mouseExited(with: event)
+        isHovered = false
+        if isCursorPushed {
+            NSCursor.pop()
+            isCursorPushed = false
+        }
+        needsDisplay = true
     }
 
     override func resetCursorRects() {
@@ -156,9 +148,35 @@ final class DragGripNSView: NSView {
         addCursorRect(bounds, cursor: .openHand)
     }
 
+    override func mouseDown(with event: NSEvent) {
+        guard let window = window else { return }
+        if isCursorPushed {
+            NSCursor.pop()
+            isCursorPushed = false
+        }
+        NSCursor.closedHand.push()
+        window.performDrag(with: event)
+        NSCursor.pop()
+        if isHovered {
+            NSCursor.openHand.push()
+            isCursorPushed = true
+        }
+        window.invalidateCursorRects(for: self)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        let dotColor = NSColor(srgbRed: 0x2C/255, green: 0x26/255, blue: 0x22/255, alpha: 0.45)
+
+        if isHovered {
+            let bgRect = bounds.insetBy(dx: 2, dy: 2)
+            let bgPath = NSBezierPath(roundedRect: bgRect, xRadius: 6, yRadius: 6)
+            NSColor(srgbRed: 0x2C/255, green: 0x26/255, blue: 0x22/255, alpha: 0.08).setFill()
+            bgPath.fill()
+        }
+
+        let dotColor = isHovered
+            ? NSColor(srgbRed: 0x2C/255, green: 0x26/255, blue: 0x22/255, alpha: 0.75)
+            : NSColor(srgbRed: 0x2C/255, green: 0x26/255, blue: 0x22/255, alpha: 0.45)
         dotColor.setFill()
 
         let dotSize: CGFloat = 3.2
@@ -177,44 +195,5 @@ final class DragGripNSView: NSView {
                 path.fill()
             }
         }
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        guard let window = window else {
-            print("[Notey Drag] mouseDown: window is nil")
-            return
-        }
-        initialMouseScreen = NSEvent.mouseLocation
-        initialWindowOrigin = window.frame.origin
-        NSCursor.closedHand.push()
-        print("[Notey Drag] mouseDown at \(initialMouseScreen), windowOrigin: \(initialWindowOrigin)")
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        guard let window = window else { return }
-        let currentMouseScreen = NSEvent.mouseLocation
-        let deltaX = currentMouseScreen.x - initialMouseScreen.x
-        let deltaY = currentMouseScreen.y - initialMouseScreen.y
-        let rawOrigin = NSPoint(
-            x: initialWindowOrigin.x + deltaX,
-            y: initialWindowOrigin.y + deltaY
-        )
-
-        let screenFrame = (window.screen ?? NSScreen.main)?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let minX = screenFrame.minX
-        let maxX = screenFrame.maxX - window.frame.width
-        let minY = screenFrame.minY
-        let maxY = screenFrame.maxY - window.frame.height
-
-        let clampedOrigin = NSPoint(
-            x: min(max(rawOrigin.x, minX), maxX),
-            y: min(max(rawOrigin.y, minY), maxY)
-        )
-        window.setFrameOrigin(clampedOrigin)
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        NSCursor.pop()
-        print("[Notey Drag] mouseUp")
     }
 }

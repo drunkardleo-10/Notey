@@ -41,6 +41,8 @@ class NoteyPanel: NSPanel {
     func configureAsEditor() {
         canBecomeKeyOverride = true
         canBecomeMainOverride = true
+        becomesKeyOnlyIfNeeded = false
+        acceptsMouseMovedEvents = true
 
         collectionBehavior = [
             .canJoinAllSpaces,
@@ -79,6 +81,20 @@ class NoteyPanel: NSPanel {
         orderFrontRegardless()
     }
 
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown {
+            if canBecomeKey {
+                if !NSApp.isActive {
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                if !isKeyWindow {
+                    makeKey()
+                }
+            }
+        }
+        super.sendEvent(event)
+    }
+
     func setPinnedLevel(_ pinned: Bool) {
         level = .statusBar 
         orderFrontRegardless()
@@ -100,5 +116,13 @@ final class NoteyHostingView<Content: View>: NSHostingView<Content> {
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if !NSApp.isActive {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        window?.makeKey()
+        super.mouseDown(with: event)
     }
 }

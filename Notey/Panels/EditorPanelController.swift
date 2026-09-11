@@ -23,7 +23,7 @@ final class EditorPanelController: NSObject {
         let frame = CGRect(x: 0, y: 0, width: NoteyLayout.editorWidth, height: NoteyLayout.editorHeight)
         panel = NoteyPanel(
             contentRect: frame,
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -73,8 +73,26 @@ final class EditorPanelController: NSObject {
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
+        panel.makeMain()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            guard let self = self else { return }
+            self.panel.makeKey()
+            if let tv = self.findTextView(in: self.panel.contentView) {
+                self.panel.makeFirstResponder(tv)
+            }
+        }
 
         setupDeactivationObserver()
+    }
+
+    private func findTextView(in view: NSView?) -> NSView? {
+        guard let view = view else { return nil }
+        if view is NSTextView { return view }
+        for sub in view.subviews {
+            if let found = findTextView(in: sub) { return found }
+        }
+        return nil
     }
 
     func close() {

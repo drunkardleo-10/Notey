@@ -13,7 +13,10 @@ let package = Package(
         .executableTarget(
             name: "Notey",
             path: "Notey",
-            exclude: ["Info.plist", "Notey.entitlements"]
+            exclude: ["Info.plist", "Notey.entitlements"],
+            resources: [
+                .copy("Resources/Caveat.ttf")
+            ]
         ),
         .testTarget(
             name: "NoteyTests",

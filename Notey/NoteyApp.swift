@@ -27,7 +27,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var hotKeyManager: HotKeyManager!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        
+        NSApp.setActivationPolicy(.accessory)
+
         noteStore.loadNotes()
 
         noteStore.seedDefaultNotesIfEmpty()
@@ -88,8 +89,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.showOnboardingTour()
             }
         )
-
-        print("[Notey] App launched. \(noteStore.notes.count) notes loaded.")
     }
 
     func showOnboardingTour() {

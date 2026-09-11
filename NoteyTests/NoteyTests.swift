@@ -356,6 +356,111 @@ final class MarkdownNSTextViewTests: XCTestCase {
 
         try? FileManager.default.removeItem(at: tempDir)
     }
+
+    @MainActor
+    func testActivationPolicyAndPanelKeyBehavior() {
+        let panel = NoteyPanel(
+            contentRect: NSRect(x: 100, y: 100, width: 300, height: 300),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        panel.configureAsEditor()
+
+        XCTAssertTrue(panel.canBecomeKey)
+        XCTAssertTrue(panel.canBecomeMain)
+        XCTAssertFalse(panel.becomesKeyOnlyIfNeeded)
+        XCTAssertTrue(panel.acceptsMouseMovedEvents)
+        XCTAssertTrue(panel.isMovable)
+    }
+
+    @MainActor
+    func testEditorScrollViewViewportSizing() {
+        let scrollView = EditorScrollView(frame: NSRect(x: 0, y: 0, width: 300, height: 400))
+        let textView = MarkdownNSTextView(frame: .zero)
+        scrollView.documentView = textView
+        scrollView.textView = textView
+
+        scrollView.layout()
+        let clipHeight = scrollView.contentView.bounds.height
+        XCTAssertGreaterThan(clipHeight, 0)
+        XCTAssertGreaterThanOrEqual(textView.frame.height, clipHeight)
+        XCTAssertEqual(textView.minSize.height, clipHeight)
+    }
+
+    @MainActor
+    func testDragGripViewCursorTracking() {
+        let grip = DragGripNSView(frame: NSRect(x: 0, y: 0, width: 28, height: 28))
+        grip.updateTrackingAreas()
+        XCTAssertNotNil(grip.trackingAreas.first)
+
+        grip.resetCursorRects()
+        let enterEvent = NSEvent.enterExitEvent(
+            with: .mouseEntered,
+            location: NSPoint(x: 14, y: 14),
+            modifierFlags: [],
+            timestamp: 0,
+            windowNumber: 0,
+            context: nil,
+            eventNumber: 1,
+            trackingNumber: 1,
+            userData: nil
+        )
+        if let enter = enterEvent {
+            grip.mouseEntered(with: enter)
+        }
+        let exitEvent = NSEvent.enterExitEvent(
+            with: .mouseExited,
+            location: NSPoint(x: 50, y: 50),
+            modifierFlags: [],
+            timestamp: 0,
+            windowNumber: 0,
+            context: nil,
+            eventNumber: 2,
+            trackingNumber: 1,
+            userData: nil
+        )
+        if let exit = exitEvent {
+            grip.mouseExited(with: exit)
+        }
+    }
+
+    @MainActor
+    func testCaveatFontLoads() {
+        let font = NoteyFonts.noteNSFont(size: 24, weight: .regular)
+        XCTAssertNotNil(font)
+        XCTAssertTrue(font.fontName.contains("Caveat"))
+
+        let boldFont = NoteyFonts.noteNSFont(size: 24, weight: .bold)
+        XCTAssertNotNil(boldFont)
+        XCTAssertTrue(boldFont.fontDescriptor.symbolicTraits.contains(.bold))
+    }
+
+    @MainActor
+    func testChecklistAndBulletFontApplication() {
+        let tv = MarkdownNSTextView(frame: NSRect(x: 0, y: 0, width: 300, height: 400))
+        tv.string = "• Bullet point\n☐ Checklist item"
+        tv.refreshFormatting()
+
+        guard let storage = tv.textStorage else {
+            XCTFail("No text storage")
+            return
+        }
+
+        let bulletFont = storage.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+        XCTAssertNotNil(bulletFont)
+        XCTAssertGreaterThanOrEqual(bulletFont?.pointSize ?? 0, 20)
+
+        let bulletTextFont = storage.attribute(.font, at: 2, effectiveRange: nil) as? NSFont
+        XCTAssertNotNil(bulletTextFont)
+        XCTAssertTrue(bulletTextFont?.fontName.contains("Caveat") ?? false)
+
+        let checklistLineStart = ("• Bullet point\n" as NSString).length
+        let checkTextIndex = checklistLineStart + 2
+        let checkTextFont = storage.attribute(.font, at: checkTextIndex, effectiveRange: nil) as? NSFont
+        XCTAssertNotNil(checkTextFont)
+        XCTAssertTrue(checkTextFont?.fontName.contains("Caveat") ?? false)
+    }
 }
 
 

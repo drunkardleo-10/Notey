@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import CoreText
 
 extension Color {
     static let noteYellow   = Color(hex: 0xFDC844)
@@ -74,15 +75,69 @@ extension NoteColor {
 }
 
 struct NoteyFonts {
+    nonisolated(unsafe) private static var isCaveatRegistered: Bool = false
+
+    static func registerCaveatIfNeeded() {
+        guard !isCaveatRegistered else { return }
+        isCaveatRegistered = true
+
+        if NSFont(name: "Caveat", size: 16) != nil || NSFont(name: "Caveat-Regular", size: 16) != nil {
+            return
+        }
+
+        var candidateURLs: [URL] = []
+
+        #if SWIFT_PACKAGE
+        if let moduleURL = Bundle.module.url(forResource: "Caveat", withExtension: "ttf") {
+            candidateURLs.append(moduleURL)
+        }
+        #endif
+
+        if let mainURL = Bundle.main.url(forResource: "Caveat", withExtension: "ttf") {
+            candidateURLs.append(mainURL)
+        }
+
+        let sourceDirURL = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Resources/Caveat.ttf")
+        candidateURLs.append(sourceDirURL)
+
+        candidateURLs.append(URL(fileURLWithPath: "/Users/leo/Desktop/Notey/Notey/Resources/Caveat.ttf"))
+
+        for url in candidateURLs {
+            if FileManager.default.fileExists(atPath: url.path) {
+                var error: Unmanaged<CFError>?
+                if CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error) {
+                    return
+                }
+            }
+        }
+    }
+
     static func ui(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }
 
     static func note(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size, weight: weight, design: .rounded)
+        registerCaveatIfNeeded()
+        return .custom("Caveat", size: size)
     }
 
     static func noteNSFont(size: CGFloat, weight: NSFont.Weight = .regular, italic: Bool = false) -> NSFont {
+        registerCaveatIfNeeded()
+
+        if let base = NSFont(name: "Caveat-Regular", size: size) ?? NSFont(name: "Caveat", size: size) {
+            var f = base
+            if weight >= .bold {
+                f = NSFontManager.shared.convert(f, toHaveTrait: .boldFontMask)
+            }
+            if italic {
+                f = NSFontManager.shared.convert(f, toHaveTrait: .italicFontMask)
+            }
+            return f
+        }
+
         var font = NSFont.systemFont(ofSize: size, weight: weight)
         if let desc = font.fontDescriptor.withDesign(.rounded) {
             font = NSFont(descriptor: desc, size: size) ?? font

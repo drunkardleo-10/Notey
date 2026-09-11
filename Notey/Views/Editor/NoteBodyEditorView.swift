@@ -8,86 +8,69 @@ struct NoteBodyEditorView: View {
     var onChange: ((String) -> Void)?
     var onRegisterTextView: ((NSTextView) -> Void)?
 
-    @State private var hasSelection: Bool = false
-    @State private var selectionRange: NSRange = NSRange(location: 0, length: 0)
     @State private var internalTextView: MarkdownNSTextView?
 
     var body: some View {
-        ZStack(alignment: .top) {
-            MarkdownEditorRepresentable(
-                markdown: $markdown,
-                isChecklist: $isChecklist,
-                noteColor: noteColor,
-                hasSelection: $hasSelection,
-                selectionRange: $selectionRange,
-                onTextViewReady: { tv in
-                    self.internalTextView = tv
-                    self.onRegisterTextView?(tv)
-                },
-                onChange: { newMarkdown in
-                    onChange?(newMarkdown)
-                }
-            )
-            .padding(.init(top: 8, leading: 16, bottom: 12, trailing: 16))
-
-            if hasSelection {
-                FloatingFormatBar(
-                    onBold: { internalTextView?.toggleBold() },
-                    onItalic: { internalTextView?.toggleItalic() },
-                    onUnderline: { internalTextView?.toggleUnderline() }
-                )
-                .padding(.top, 2)
-                .transition(.opacity.combined(with: .scale(scale: 0.92)))
+        MarkdownEditorRepresentable(
+            markdown: $markdown,
+            isChecklist: $isChecklist,
+            noteColor: noteColor,
+            onTextViewReady: { tv in
+                self.internalTextView = tv
+                self.onRegisterTextView?(tv)
+            },
+            onChange: { newMarkdown in
+                onChange?(newMarkdown)
+            }
+        )
+        .onHover { hovering in
+            if hovering {
+                NSCursor.iBeam.set()
+            } else {
+                NSCursor.arrow.set()
             }
         }
+        .padding(.init(top: 8, leading: 16, bottom: 12, trailing: 16))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.noteyQuick, value: hasSelection)
         .onChange(of: isChecklist) { _, newValue in
             internalTextView?.toggleChecklistMode(newValue)
         }
     }
 }
 
-private struct FloatingFormatBar: View {
-    var onBold: () -> Void
-    var onItalic: () -> Void
-    var onUnderline: () -> Void
+final class EditorScrollView: NSScrollView {
+    weak var textView: MarkdownNSTextView?
 
-    var body: some View {
-        HStack(spacing: 14) {
-            Button(action: onBold) {
-                Text("B")
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundStyle(Color.white)
+    override func layout() {
+        super.layout()
+        guard let tv = textView else { return }
+        let clipBounds = contentView.bounds
+        if clipBounds.height > 0 {
+            if tv.minSize.height != clipBounds.height {
+                tv.minSize = NSSize(width: 0, height: clipBounds.height)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Bold")
-
-            Button(action: onItalic) {
-                Text("I")
-                    .font(.system(size: 13, weight: .bold, design: .serif))
-                    .italic()
-                    .foregroundStyle(Color.white)
+            if tv.frame.height < clipBounds.height {
+                tv.frame = NSRect(x: 0, y: 0, width: clipBounds.width, height: clipBounds.height)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Italic")
-
-            Button(action: onUnderline) {
-                Text("U")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .underline()
-                    .foregroundStyle(Color.white)
+            if tv.frame.width != clipBounds.width {
+                tv.frame.size.width = clipBounds.width
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Underline")
         }
-        .padding(.vertical, 5)
-        .padding(.horizontal, 16)
-        .background(
-            Capsule()
-                .fill(Color(hex: 0x221E1B).opacity(0.92))
-                .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 3)
-        )
+    }
+
+    override func cursorUpdate(with event: NSEvent) {
+        NSCursor.iBeam.set()
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if !NSApp.isActive {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        window?.makeKey()
+        if let tv = textView {
+            window?.makeFirstResponder(tv)
+        }
+        super.mouseDown(with: event)
     }
 }
 
@@ -95,32 +78,31 @@ struct MarkdownEditorRepresentable: NSViewRepresentable {
     @Binding var markdown: String
     @Binding var isChecklist: Bool
     var noteColor: NoteColor
-    @Binding var hasSelection: Bool
-    @Binding var selectionRange: NSRange
     var onTextViewReady: (MarkdownNSTextView) -> Void
     var onChange: (String) -> Void
 
-    func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSScrollView()
+    func makeNSView(context: Context) -> EditorScrollView {
+        let scrollView = EditorScrollView()
         scrollView.drawsBackground = false
         scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
 
-        let contentSize = scrollView.contentSize
-        let textView = MarkdownNSTextView(frame: NSRect(origin: .zero, size: contentSize))
-        textView.minSize = NSSize(width: 0, height: contentSize.height)
+        let textView = MarkdownNSTextView(frame: .zero)
+        textView.minSize = NSSize(width: 0, height: 0)
         textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false
         textView.autoresizingMask = [.width]
 
-        textView.textContainer?.containerSize = NSSize(width: contentSize.width, height: CGFloat.greatestFiniteMagnitude)
+        textView.textContainer?.containerSize = NSSize(width: 0, height: CGFloat.greatestFiniteMagnitude)
         textView.textContainer?.widthTracksTextView = true
         textView.textContainer?.lineFragmentPadding = 0
 
         textView.isRichText = true
+        textView.isEditable = true
+        textView.isSelectable = true
         textView.importsGraphics = false
         textView.allowsImageEditing = false
         textView.allowsUndo = true
@@ -131,19 +113,16 @@ struct MarkdownEditorRepresentable: NSViewRepresentable {
         textView.setMarkdownText(markdown)
 
         scrollView.documentView = textView
+        scrollView.textView = textView
         context.coordinator.textView = textView
         DispatchQueue.main.async {
             onTextViewReady(textView)
         }
 
-        DispatchQueue.main.async {
-            textView.window?.makeFirstResponder(textView)
-        }
-
         return scrollView
     }
 
-    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+    func updateNSView(_ scrollView: EditorScrollView, context: Context) {
         guard let textView = scrollView.documentView as? MarkdownNSTextView else { return }
         if textView.noteColor != noteColor {
             textView.noteColor = noteColor
@@ -175,33 +154,18 @@ struct MarkdownEditorRepresentable: NSViewRepresentable {
             parent.markdown = md
             parent.isChecklist = tv.string.contains("☐ ") || tv.string.contains("☑ ")
             parent.onChange(md)
-
-            let sel = tv.selectedRange()
-            let totalLength = (tv.string as NSString).length
-            let isAllSelected = totalLength > 0 && sel.length >= totalLength
-            parent.selectionRange = sel
-            parent.hasSelection = sel.length > 0 && !isAllSelected
-        }
-
-        func textViewDidChangeSelection(_ notification: Notification) {
-            guard let tv = notification.object as? MarkdownNSTextView else { return }
-            let sel = tv.selectedRange()
-            let totalLength = (tv.string as NSString).length
-            parent.selectionRange = sel
-            let isAllSelected = totalLength > 0 && sel.length >= totalLength
-            parent.hasSelection = sel.length > 0 && !isAllSelected
         }
     }
 }
 
 final class MarkdownNSTextView: NSTextView {
-    var baseFont: NSFont = NoteyFonts.noteNSFont(size: 20, weight: .regular)
-    var boldFont: NSFont = NoteyFonts.noteNSFont(size: 20, weight: .bold)
-    var italicFont: NSFont = NoteyFonts.noteNSFont(size: 20, weight: .regular, italic: true)
-    var boldItalicFont: NSFont = NoteyFonts.noteNSFont(size: 20, weight: .bold, italic: true)
+    var baseFont: NSFont = NoteyFonts.noteNSFont(size: 24, weight: .regular)
+    var boldFont: NSFont = NoteyFonts.noteNSFont(size: 24, weight: .bold)
+    var italicFont: NSFont = NoteyFonts.noteNSFont(size: 24, weight: .regular, italic: true)
+    var boldItalicFont: NSFont = NoteyFonts.noteNSFont(size: 24, weight: .bold, italic: true)
     var baseColor: NSColor = NSColor(srgbRed: 0x2C/255, green: 0x26/255, blue: 0x22/255, alpha: 1.0)
     var noteColor: NoteColor = .yellow
-    private var checkboxFont: NSFont = NSFont.systemFont(ofSize: 20, weight: .medium)
+    private var checkboxFont: NSFont = NSFont.systemFont(ofSize: 22, weight: .medium)
     private var isApplyingFormat: Bool = false
 
     override init(frame frameRect: NSRect, textContainer: NSTextContainer?) {
@@ -228,12 +192,28 @@ final class MarkdownNSTextView: NSTextView {
         font = baseFont
         textColor = baseColor
         insertionPointColor = baseColor
+        isEditable = true
+        isSelectable = true
+        allowsUndo = true
         isRichText = true
         importsGraphics = false
         allowsImageEditing = false
         isAutomaticQuoteSubstitutionEnabled = false
         isAutomaticDashSubstitutionEnabled = false
         isAutomaticTextReplacementEnabled = false
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let window = window {
+            window.invalidateCursorRects(for: self)
+            DispatchQueue.main.async { [weak self, weak window] in
+                guard let self = self, let window = window else { return }
+                if window.firstResponder == nil || window.firstResponder == window {
+                    window.makeFirstResponder(self)
+                }
+            }
+        }
     }
 
     func setMarkdownText(_ text: String) {
@@ -277,6 +257,11 @@ final class MarkdownNSTextView: NSTextView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        if !NSApp.isActive {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        window?.makeKey()
+        window?.makeFirstResponder(self)
         let point = convert(event.locationInWindow, from: nil)
         if let layoutManager = layoutManager, let textContainer = textContainer {
             let nsString = string as NSString
@@ -381,7 +366,9 @@ final class MarkdownNSTextView: NSTextView {
     }
 
     override func resetCursorRects() {
-        super.resetCursorRects()
+        discardCursorRects()
+        addCursorRect(bounds, cursor: .iBeam)
+
         guard let layoutManager = layoutManager, let textContainer = textContainer else { return }
         let nsString = string as NSString
         let origin = textContainerOrigin
@@ -499,11 +486,9 @@ final class MarkdownNSTextView: NSTextView {
         ]
         for prefix in checkPrefixes {
             if lineText.hasPrefix(prefix) {
-                let remainder = String(lineText.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
-                let replaceLen = lineText.count - (remainder.isEmpty ? 0 : remainder.count)
-                replaceCharacters(in: NSRange(location: lineRange.location, length: min(replaceLen, lineRange.length)), with: "☐ ")
-                let offset = lineRange.location + 2
-                setSelectedRange(NSRange(location: offset, length: 0))
+                replaceCharacters(in: NSRange(location: lineRange.location, length: prefix.count), with: "☐ ")
+                let newCursor = lineRange.location + 2 + max(0, selected.location - (lineRange.location + prefix.count))
+                setSelectedRange(NSRange(location: newCursor, length: 0))
                 didChangeText()
                 refreshFormatting()
                 return
@@ -517,11 +502,9 @@ final class MarkdownNSTextView: NSTextView {
         ]
         for prefix in donePrefixes {
             if lineText.hasPrefix(prefix) {
-                let remainder = String(lineText.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
-                let replaceLen = lineText.count - (remainder.isEmpty ? 0 : remainder.count)
-                replaceCharacters(in: NSRange(location: lineRange.location, length: min(replaceLen, lineRange.length)), with: "☑ ")
-                let offset = lineRange.location + 2
-                setSelectedRange(NSRange(location: offset, length: 0))
+                replaceCharacters(in: NSRange(location: lineRange.location, length: prefix.count), with: "☑ ")
+                let newCursor = lineRange.location + 2 + max(0, selected.location - (lineRange.location + prefix.count))
+                setSelectedRange(NSRange(location: newCursor, length: 0))
                 didChangeText()
                 refreshFormatting()
                 return
@@ -778,14 +761,32 @@ final class MarkdownNSTextView: NSTextView {
     }
 
     func cleanTypingAttributes() {
-        if typingAttributes[.kern] != nil {
-            typingAttributes.removeValue(forKey: .kern)
-        }
-        if let currentFont = typingAttributes[.font] as? NSFont, currentFont == checkboxFont {
-            typingAttributes[.font] = baseFont
-        }
-        if let col = typingAttributes[.foregroundColor] as? NSColor, col == .clear {
-            typingAttributes[.foregroundColor] = baseColor
+        typingAttributes[.font] = baseFont
+        typingAttributes[.foregroundColor] = baseColor
+        typingAttributes.removeValue(forKey: .kern)
+        typingAttributes.removeValue(forKey: .strikethroughStyle)
+        typingAttributes.removeValue(forKey: .strikethroughColor)
+    }
+
+    private func ensureLineFonts(in textRange: NSRange) {
+        guard textRange.length > 0, let storage = textStorage else { return }
+        var location = textRange.location
+        let end = textRange.location + textRange.length
+        while location < end {
+            var effectiveRange = NSRange(location: location, length: 0)
+            let currentFont = storage.attribute(.font, at: location, longestEffectiveRange: &effectiveRange, in: NSRange(location: location, length: end - location)) as? NSFont
+            let targetFont: NSFont
+            if let cf = currentFont, cf.fontDescriptor.symbolicTraits.contains(.bold) && cf.fontDescriptor.symbolicTraits.contains(.italic) {
+                targetFont = boldItalicFont
+            } else if let cf = currentFont, cf.fontDescriptor.symbolicTraits.contains(.bold) {
+                targetFont = boldFont
+            } else if let cf = currentFont, cf.fontDescriptor.symbolicTraits.contains(.italic) {
+                targetFont = italicFont
+            } else {
+                targetFont = baseFont
+            }
+            storage.addAttribute(.font, value: targetFont, range: effectiveRange)
+            location = effectiveRange.location + effectiveRange.length
         }
     }
 
@@ -815,12 +816,21 @@ final class MarkdownNSTextView: NSTextView {
             if lineStr.hasPrefix("• ") {
                 let bulletPara = NSMutableParagraphStyle()
                 bulletPara.firstLineHeadIndent = 0
-                bulletPara.headIndent = 18
+                bulletPara.headIndent = 20
                 bulletPara.lineSpacing = 3
                 textStorage.addAttribute(.paragraphStyle, value: bulletPara, range: lineRange)
                 textStorage.removeAttribute(.strikethroughStyle, range: lineRange)
                 textStorage.removeAttribute(.strikethroughColor, range: lineRange)
                 textStorage.addAttribute(.foregroundColor, value: baseColor, range: lineRange)
+
+                let bulletCharRange = NSRange(location: lineRange.location, length: 1)
+                textStorage.addAttribute(.font, value: NSFont.systemFont(ofSize: 22, weight: .bold), range: bulletCharRange)
+
+                let textLen = max(0, lineRange.length - 2)
+                if textLen > 0 {
+                    let textRange = NSRange(location: lineRange.location + 2, length: textLen)
+                    ensureLineFonts(in: textRange)
+                }
             } else if lineStr.hasPrefix("☐ ") {
                 let checkPara = NSMutableParagraphStyle()
                 checkPara.firstLineHeadIndent = 0
@@ -835,6 +845,12 @@ final class MarkdownNSTextView: NSTextView {
                 textStorage.addAttribute(.foregroundColor, value: NSColor.clear, range: checkCharRange)
                 textStorage.addAttribute(.font, value: checkboxFont, range: checkCharRange)
                 textStorage.addAttribute(.kern, value: 12.0, range: checkCharRange)
+
+                let textLen = max(0, lineRange.length - 2)
+                if textLen > 0 {
+                    let textRange = NSRange(location: lineRange.location + 2, length: textLen)
+                    ensureLineFonts(in: textRange)
+                }
             } else if lineStr.hasPrefix("☑ ") {
                 let checkPara = NSMutableParagraphStyle()
                 checkPara.firstLineHeadIndent = 0
@@ -859,6 +875,7 @@ final class MarkdownNSTextView: NSTextView {
                     textStorage.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: textRange)
                     textStorage.addAttribute(.strikethroughColor, value: mutedColor, range: textRange)
                     textStorage.addAttribute(.foregroundColor, value: mutedColor, range: textRange)
+                    ensureLineFonts(in: textRange)
                 }
             } else {
                 let defaultPara = NSMutableParagraphStyle()
@@ -867,6 +884,7 @@ final class MarkdownNSTextView: NSTextView {
                 textStorage.removeAttribute(.strikethroughStyle, range: lineRange)
                 textStorage.removeAttribute(.strikethroughColor, range: lineRange)
                 textStorage.addAttribute(.foregroundColor, value: baseColor, range: lineRange)
+                ensureLineFonts(in: lineRange)
             }
 
             lineIndex = lineRange.location + lineRange.length
