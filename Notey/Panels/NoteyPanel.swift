@@ -56,8 +56,6 @@ class NoteyPanel: NSPanel {
         hidesOnDeactivate = false
 
         styleMask = [.borderless]
-
-        orderFrontRegardless()
     }
 
     func configureAsModal() {
@@ -90,6 +88,16 @@ class NoteyPanel: NSPanel {
 import SwiftUI
 
 final class NoteyHostingView<Content: View>: NSHostingView<Content> {
+    @MainActor required init(rootView: Content) {
+        super.init(rootView: rootView)
+        sizingOptions = []
+    }
+
+    @MainActor required dynamic init?(coder: NSCoder) {
+        super.init(coder: coder)
+        sizingOptions = []
+    }
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
     }

@@ -7,25 +7,25 @@ final class DeckState {
     var isHovered: Bool = false
     var expandedNoteId: UUID? = nil
     var activeHoverNoteId: UUID? = nil
+    var isEditorOpen: Bool = false
 
     private var leaveWorkItem: DispatchWorkItem?
     private var dwellWorkItem: DispatchWorkItem?
 
     func mouseEntered(windowManager: WindowModeManager) {
+        guard !isEditorOpen else { return }
         leaveWorkItem?.cancel()
         leaveWorkItem = nil
 
-        guard !isHovered else { return }
-
-        // Expand window mode first so SwiftUI views have room to animate into
-        windowManager.setMode(.deckHover)
-
-        withAnimation(.noteySpring) {
-            isHovered = true
+        if !isHovered {
+            windowManager.setMode(.deckHover)
+            withAnimation(.noteySpring) {
+                isHovered = true
+            }
         }
     }
 
-    func mouseExited(windowManager: WindowModeManager, isEditorOpen: Bool) {
+    func panelMouseExited(windowManager: WindowModeManager) {
         activeHoverNoteId = nil
         dwellWorkItem?.cancel()
         dwellWorkItem = nil
@@ -39,18 +39,19 @@ final class DeckState {
                 self.expandedNoteId = nil
                 self.activeHoverNoteId = nil
             }
-            // Allow spring collapse animation to finish before shrinking window
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
-                if !self.isHovered && !isEditorOpen {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+                if !self.isHovered && !self.isEditorOpen {
                     windowManager.setMode(.deckIdle)
                 }
             }
         }
         leaveWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: work)
     }
 
-    func tabMouseEntered(noteId: UUID) {
+    func tabMouseEntered(noteId: UUID, windowManager: WindowModeManager) {
+        guard !isEditorOpen else { return }
+
         leaveWorkItem?.cancel()
         leaveWorkItem = nil
 
@@ -59,7 +60,13 @@ final class DeckState {
 
         activeHoverNoteId = noteId
 
-        // If another note is currently expanded, collapse it immediately so only one note is ever hovered
+        if !isHovered {
+            windowManager.setMode(.deckHover)
+            withAnimation(.noteySpring) {
+                isHovered = true
+            }
+        }
+
         if expandedNoteId != nil && expandedNoteId != noteId {
             withAnimation(.noteySpring) {
                 expandedNoteId = nil
@@ -67,13 +74,13 @@ final class DeckState {
         }
 
         let work = DispatchWorkItem { [weak self] in
-            guard let self, self.activeHoverNoteId == noteId else { return }
+            guard let self, self.activeHoverNoteId == noteId, !self.isEditorOpen else { return }
             withAnimation(.noteySpring) {
                 self.expandedNoteId = noteId
             }
         }
         dwellWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: work)
     }
 
     func tabMouseExited(noteId: UUID) {
@@ -103,7 +110,6 @@ final class DeckState {
 
 @MainActor
 final class DeckPanelController: NSResponder {
-
     let panel: NoteyPanel
     let deckState = DeckState()
 
@@ -113,7 +119,15 @@ final class DeckPanelController: NSResponder {
     private var hostingView: NoteyHostingView<EdgeDeckView>?
 
     var onSelectNote: ((Note) -> Void)?
-    var isEditorOpen: Bool = false
+
+    var isEditorOpen: Bool {
+        get { deckState.isEditorOpen }
+        set {
+            deckState.isEditorOpen = newValue
+            deckState.reset()
+            windowManager.setMode(.deckIdle)
+        }
+    }
 
     init(noteStore: NoteStore, windowManager: WindowModeManager) {
         self.noteStore = noteStore
@@ -146,13 +160,16 @@ final class DeckPanelController: NSResponder {
             }
         )
 
-        let hosting = NoteyHostingView(rootView: edgeDeckView)
-        hosting.frame = panel.contentView?.bounds ?? frame
-        hosting.autoresizingMask = [.width, .height]
+        let container = NSView(frame: panel.contentView?.bounds ?? frame)
+        container.autoresizingMask = [.width, .height]
+        panel.contentView = container
 
+        let hosting = NoteyHostingView(rootView: edgeDeckView)
+        hosting.frame = container.bounds
+        hosting.autoresizingMask = [.width, .height]
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
 
-        panel.contentView = hosting
+        container.addSubview(hosting)
         self.hostingView = hosting
 
         updateTrackingArea()
@@ -190,7 +207,7 @@ final class DeckPanelController: NSResponder {
 
     @objc(mouseExited:)
     override func mouseExited(with event: NSEvent) {
-        deckState.mouseExited(windowManager: windowManager, isEditorOpen: isEditorOpen)
+        deckState.panelMouseExited(windowManager: windowManager)
     }
 
     private func handleAddNote() {

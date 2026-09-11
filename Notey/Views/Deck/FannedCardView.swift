@@ -23,6 +23,14 @@ struct FannedCardView: View {
         return firstWord.uppercased()
     }
 
+    private var formattedBody: AttributedString {
+        let display = MarkdownBridge.toDisplay(note.body)
+        if let attr = try? AttributedString(markdown: display, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
+            return attr
+        }
+        return AttributedString(display)
+    }
+
     @State private var isHovered = false
 
     var body: some View {
@@ -54,7 +62,7 @@ struct FannedCardView: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
 
-                    Text(note.body)
+                    Text(formattedBody)
                         .font(NoteyFonts.note(size: 14))
                         .foregroundStyle(Color.textPrimary)
                         .lineLimit(5)

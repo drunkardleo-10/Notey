@@ -1,13 +1,11 @@
 import SwiftUI
 
 struct EdgeAnchorView: View {
-
     let isDeckHovered: Bool
     var onAddNote: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 8) {
-            
             Button(action: { onAddNote?() }) {
                 Image(systemName: "plus")
                     .font(.system(size: 13, weight: .bold))
@@ -28,6 +26,8 @@ struct EdgeAnchorView: View {
             }
             .buttonStyle(ScaleButtonStyle())
             .accessibilityLabel("Add new note")
+            .opacity(isDeckHovered ? 1 : 0)
+            .scaleEffect(isDeckHovered ? 1 : 0.6)
 
             HStack(spacing: 3) {
                 VStack(spacing: 3) {
@@ -43,10 +43,7 @@ struct EdgeAnchorView: View {
             }
             .frame(width: 20, height: 20)
         }
-        .frame(width: 34)
-        .opacity(isDeckHovered ? 1 : 0)
-        .offset(x: isDeckHovered ? 0 : 18)
-        .allowsHitTesting(isDeckHovered)
+        .frame(width: isDeckHovered ? 34 : 12)
         .animation(.noteySpring, value: isDeckHovered)
     }
 }

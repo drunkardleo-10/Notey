@@ -45,6 +45,7 @@ struct OnboardingView: View {
 
     @State private var currentStep: Int = 1
     @State private var startOnLogin: Bool = true
+    @Namespace private var dotNamespace
 
     private var currentData: OnboardingStepInfo {
         onboardingSteps[currentStep - 1]
@@ -85,25 +86,94 @@ struct OnboardingView: View {
     private var leftPane: some View {
         VStack(alignment: .leading, spacing: 0) {
             
-            HStack(spacing: 7) {
-                Button(action: { handleComplete() }) {
-                    Circle()
-                        .fill(Color(hex: 0xFF5F56))
-                        .frame(width: 11, height: 11)
-                }
-                .buttonStyle(.plain)
+            NativeCloseButton(action: { handleComplete() })
+                .padding(.top, 20)
+                .padding(.bottom, 22)
 
-                Circle()
-                    .fill(Color(hex: 0xFFBD2E))
-                    .frame(width: 11, height: 11)
-
-                Circle()
-                    .fill(Color(hex: 0x27C93F))
-                    .frame(width: 11, height: 11)
+            ZStack(alignment: .topLeading) {
+                stepContentView
+                    .id(currentStep)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .offset(x: 28)),
+                            removal: .opacity.combined(with: .offset(x: -28))
+                        )
+                    )
             }
-            .padding(.top, 20)
-            .padding(.bottom, 22)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .clipped()
 
+            Spacer(minLength: 0)
+
+            HStack(alignment: .center) {
+                
+                HStack(spacing: 6) {
+                    ForEach(1...4, id: \.self) { s in
+                        ZStack {
+                            Capsule()
+                                .fill(Color.textPrimary.opacity(0.22))
+                                .frame(width: 6, height: 6)
+
+                            if s == currentStep {
+                                Capsule()
+                                    .fill(Color.textPrimary.opacity(0.72))
+                                    .matchedGeometryEffect(id: "activeIndicatorPill", in: dotNamespace)
+                                    .frame(width: 22, height: 6)
+                            }
+                        }
+                        .frame(width: s == currentStep ? 22 : 6, height: 6)
+                    }
+                }
+                .animation(.spring(response: 0.38, dampingFraction: 0.8), value: currentStep)
+
+                Spacer()
+
+                if currentStep < 4 {
+                    Button(action: { handleComplete() }) {
+                        Text("Skip")
+                            .font(NoteyFonts.ui(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.textMuted)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Button(action: {
+                    if currentStep < 4 {
+                        withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                            currentStep += 1
+                        }
+                    } else {
+                        handleComplete()
+                    }
+                }) {
+                    Text(currentStep == 4 ? "Create my first note" : "Continue")
+                        .font(NoteyFonts.ui(size: 13, weight: .bold))
+                        .foregroundStyle(Color.textPrimary)
+                        .padding(.vertical, 9)
+                        .padding(.horizontal, currentStep == 4 ? 18 : 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.noteYellow)
+                                .shadow(
+                                    color: Color.noteYellow.opacity(0.4),
+                                    radius: 6,
+                                    x: 0,
+                                    y: 2
+                                )
+                        )
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(.bottom, 22)
+        }
+        .padding(.leading, 28)
+        .padding(.trailing, 22)
+    }
+
+    private var stepContentView: some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text("STEP \(currentStep) OF 4")
                 .font(NoteyFonts.ui(size: 11, weight: .bold))
                 .tracking(1.4)
@@ -171,71 +241,10 @@ struct OnboardingView: View {
                 .padding(.bottom, 10)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
-
-            Spacer(minLength: 0)
-
-            HStack(alignment: .center) {
-                
-                HStack(spacing: 6) {
-                    ForEach(1...4, id: \.self) { s in
-                        if s == currentStep {
-                            Capsule()
-                                .fill(Color.textPrimary.opacity(0.72))
-                                .frame(width: 22, height: 6)
-                        } else {
-                            Circle()
-                                .fill(Color.textPrimary.opacity(0.22))
-                                .frame(width: 6, height: 6)
-                        }
-                    }
-                }
-                .animation(.noteyQuick, value: currentStep)
-
-                Spacer()
-
-                if currentStep < 4 {
-                    Button(action: { handleComplete() }) {
-                        Text("Skip")
-                            .font(NoteyFonts.ui(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.textMuted)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Button(action: {
-                    if currentStep < 4 {
-                        withAnimation(.noteySpring) {
-                            currentStep += 1
-                        }
-                    } else {
-                        handleComplete()
-                    }
-                }) {
-                    Text(currentStep == 4 ? "Create my first note" : "Continue")
-                        .font(NoteyFonts.ui(size: 13, weight: .bold))
-                        .foregroundStyle(Color.textPrimary)
-                        .padding(.vertical, 9)
-                        .padding(.horizontal, currentStep == 4 ? 18 : 20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.noteYellow)
-                                .shadow(
-                                    color: Color.noteYellow.opacity(0.4),
-                                    radius: 6,
-                                    x: 0,
-                                    y: 2
-                                )
-                        )
-                }
-                .buttonStyle(ScaleButtonStyle())
-            }
-            .padding(.bottom, 22)
         }
-        .padding(.leading, 28)
-        .padding(.trailing, 22)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
+
 
     private func handleComplete() {
         if startOnLogin {
@@ -246,3 +255,4 @@ struct OnboardingView: View {
         onComplete?()
     }
 }
+

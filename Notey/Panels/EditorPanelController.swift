@@ -3,11 +3,11 @@ import SwiftUI
 
 @MainActor
 final class EditorPanelController: NSObject {
-
     let panel: NoteyPanel
 
     private let noteStore: NoteStore
     private let windowManager: WindowModeManager
+    private let containerView: NSView
     private var hostingView: NoteyHostingView<NoteEditorView>?
     private var deactivationObserver: NSObjectProtocol?
 
@@ -28,6 +28,10 @@ final class EditorPanelController: NSObject {
             defer: false
         )
 
+        containerView = NSView(frame: CGRect(origin: .zero, size: frame.size))
+        containerView.autoresizingMask = [.width, .height]
+        panel.contentView = containerView
+
         super.init()
 
         panel.configureAsEditor()
@@ -36,6 +40,10 @@ final class EditorPanelController: NSObject {
     func openNote(_ note: Note) {
         currentNote = note
         isPinned = note.isPinned
+
+        panel.level = isPinned ? .statusBar : .floating
+
+        positionPanel()
 
         let editorView = NoteEditorView(
             noteStore: noteStore,
@@ -48,15 +56,20 @@ final class EditorPanelController: NSObject {
             onArchive: { [weak self] id in
                 self?.noteStore.archiveNote(id: id)
                 self?.close()
+            },
+            onPinChange: { [weak self] pinned in
+                self?.handlePinChange(pinned)
             }
         )
 
+        hostingView?.removeFromSuperview()
+
         let hosting = NoteyHostingView(rootView: editorView)
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
-        panel.contentView = hosting
+        hosting.frame = containerView.bounds
+        hosting.autoresizingMask = [.width, .height]
+        containerView.addSubview(hosting)
         self.hostingView = hosting
-
-        positionPanel()
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
@@ -67,8 +80,16 @@ final class EditorPanelController: NSObject {
     func close() {
         removeDeactivationObserver()
         panel.orderOut(nil)
+        hostingView?.removeFromSuperview()
+        hostingView = nil
         currentNote = nil
         onClose?()
+    }
+
+    private func handlePinChange(_ pinned: Bool) {
+        isPinned = pinned
+        panel.level = pinned ? .statusBar : .floating
+        panel.orderFrontRegardless()
     }
 
     private func positionPanel() {

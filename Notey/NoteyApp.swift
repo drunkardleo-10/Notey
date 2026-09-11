@@ -51,14 +51,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self else { return }
             self.deckController.isEditorOpen = true
             self.deckController.deckState.reset()
-            self.editorController.openNote(note)
+            DispatchQueue.main.async {
+                self.editorController.openNote(note)
+            }
         }
-
-        if !OnboardingPanelController.hasCompletedOnboarding {
-            showOnboardingTour()
-        } else {
-            deckController.show()
-        }
+        showOnboardingTour()
 
         archiveController = ArchivePanelController(noteStore: noteStore)
 

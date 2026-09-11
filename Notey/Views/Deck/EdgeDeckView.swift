@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct EdgeDeckView: View {
-
     let noteStore: NoteStore
     let deckState: DeckState
     let windowManager: WindowModeManager
@@ -9,7 +8,6 @@ struct EdgeDeckView: View {
     var onAddNote: (() -> Void)?
 
     var body: some View {
-        
         HStack(spacing: 0) {
             Spacer(minLength: 0)
 
@@ -21,24 +19,29 @@ struct EdgeDeckView: View {
                             isDeckHovered: deckState.isHovered,
                             isCardExpanded: deckState.expandedNoteId == note.id,
                             onSelect: { onSelectNote?(note) },
-                            onHover: { deckState.tabMouseEntered(noteId: note.id) },
+                            onHover: { deckState.tabMouseEntered(noteId: note.id, windowManager: windowManager) },
                             onLeave: { deckState.tabMouseExited(noteId: note.id) }
                         )
                         .zIndex(deckState.expandedNoteId == note.id ? 100 : Double(index + 1))
                     }
                 }
 
-                if deckState.isHovered {
-                    EdgeAnchorView(
-                        isDeckHovered: deckState.isHovered,
-                        onAddNote: onAddNote
-                    )
-                    .transition(.opacity.combined(with: .offset(x: 18)))
-                }
+                EdgeAnchorView(
+                    isDeckHovered: deckState.isHovered,
+                    onAddNote: onAddNote
+                )
             }
             .padding(.trailing, 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
         .background(Color.clear)
+        .contentShape(Rectangle())
+        .onHover { isInside in
+            if isInside {
+                deckState.mouseEntered(windowManager: windowManager)
+            } else {
+                deckState.panelMouseExited(windowManager: windowManager)
+            }
+        }
     }
 }

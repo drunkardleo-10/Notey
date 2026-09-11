@@ -19,21 +19,31 @@ struct OnboardingStageView: View {
                     )
                 )
 
-            switch step {
-            case 1:
-                Step1EdgeSimulation()
-            case 2:
-                Step2FanSimulation()
-            case 3:
-                Step3EditorSimulation()
-            case 4:
-                Step4ArchiveSimulation()
-            default:
-                EmptyView()
+            Group {
+                switch step {
+                case 1:
+                    Step1EdgeSimulation()
+                case 2:
+                    Step2FanSimulation()
+                case 3:
+                    Step3EditorSimulation()
+                case 4:
+                    Step4ArchiveSimulation()
+                default:
+                    EmptyView()
+                }
             }
+            .id(step)
+            .transition(
+                .asymmetric(
+                    insertion: .opacity.combined(with: .offset(x: 35)),
+                    removal: .opacity.combined(with: .offset(x: -35))
+                )
+            )
         }
         .clipShape(RoundedRectangle(cornerRadius: 18))
         .shadow(color: Color.black.opacity(0.15), radius: 8, y: 3)
+
     }
 }
 

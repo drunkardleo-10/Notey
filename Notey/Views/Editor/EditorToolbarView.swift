@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct EditorToolbarView: View {
-
     let color: NoteColor
     let isChecklist: Bool
     var onColorChange: ((NoteColor) -> Void)?
@@ -12,13 +11,11 @@ struct EditorToolbarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            
             Rectangle()
                 .fill(Color.textPrimary.opacity(0.08))
                 .frame(height: 1)
 
             HStack {
-                
                 HStack(spacing: 8) {
                     ColorSwatchPicker(
                         selected: color,
@@ -27,14 +24,14 @@ struct EditorToolbarView: View {
 
                     Button(action: { onToggleChecklist?() }) {
                         Image(systemName: "checklist")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(Color.textPrimary)
-                            .padding(3)
+                            .frame(width: 28, height: 28)
                             .background(
-                                RoundedRectangle(cornerRadius: 5)
+                                RoundedRectangle(cornerRadius: 6)
                                     .fill(isChecklist
                                           ? Color.textPrimary.opacity(0.14)
-                                          : Color.clear)
+                                          : Color.textPrimary.opacity(0.05))
                             )
                     }
                     .buttonStyle(.plain)
@@ -43,50 +40,55 @@ struct EditorToolbarView: View {
 
                 Spacer()
 
-                HStack(spacing: 6) {
-                    
+                HStack(spacing: 8) {
                     Button(action: { onDelete?() }) {
-                        Text("Delete")
-                            .font(NoteyFonts.ui(size: 11.5, weight: .semibold))
-                            .foregroundStyle(Color(hex: 0xC62828))
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 8)
+                        Image(systemName: "trash")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color(hex: 0xD32F2F))
+                            .frame(width: 28, height: 28)
                             .background(
-                                RoundedRectangle(cornerRadius: 7)
+                                RoundedRectangle(cornerRadius: 6)
                                     .fill(Color(hex: 0xD32F2F).opacity(0.12))
                             )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Delete note")
 
                     Button(action: { onComplete?() }) {
-                        Text("Mark complete")
-                            .font(NoteyFonts.ui(size: 11.5, weight: .semibold))
-                            .foregroundStyle(Color.textPrimary)
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 7)
-                                    .fill(Color.textPrimary.opacity(0.08))
-                            )
+                        HStack(spacing: 5) {
+                            Image(systemName: "checkmark.circle")
+                                .font(.system(size: 12, weight: .bold))
+                            Text("Complete")
+                                .font(NoteyFonts.ui(size: 12, weight: .semibold))
+                        }
+                        .foregroundStyle(Color.textPrimary)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .background(
+                            Capsule()
+                                .fill(Color.textPrimary.opacity(0.12))
+                        )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Complete note")
 
                     Button(action: { onClose?() }) {
                         Text("Close")
-                            .font(NoteyFonts.ui(size: 11.5, weight: .semibold))
+                            .font(NoteyFonts.ui(size: 12, weight: .semibold))
                             .foregroundStyle(Color.textPrimary)
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
                             .background(
-                                RoundedRectangle(cornerRadius: 7)
-                                    .stroke(Color.textPrimary.opacity(0.18), lineWidth: 1)
+                                Capsule()
+                                    .stroke(Color.textPrimary.opacity(0.2), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Close editor")
                 }
             }
             .padding(.init(top: 10, leading: 14, bottom: 10, trailing: 14))
-            .background(Color.textPrimary.opacity(0.04))
+            .background(Color.textPrimary.opacity(0.03))
         }
     }
 }

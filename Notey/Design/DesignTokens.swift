@@ -2,7 +2,6 @@ import SwiftUI
 import AppKit
 
 extension Color {
-    
     static let noteYellow   = Color(hex: 0xFDC844)
     static let noteCoral    = Color(hex: 0xFF8A80)
     static let noteMint     = Color(hex: 0x80E5D0)
@@ -75,29 +74,23 @@ extension NoteColor {
 }
 
 struct NoteyFonts {
-    
     static func ui(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }
 
     static func note(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        if let _ = NSFont(name: "Chalkboard SE", size: size) {
-            return .custom("Chalkboard SE", size: size)
-        }
-        if let _ = NSFont(name: "Noteworthy-Light", size: size) {
-            return .custom("Noteworthy-Light", size: size)
-        }
-        return .system(size: size, weight: weight, design: .rounded)
+        .system(size: size, weight: weight, design: .rounded)
     }
 
-    static func noteNSFont(size: CGFloat, weight: NSFont.Weight = .regular) -> NSFont {
-        if let font = NSFont(name: "Chalkboard SE", size: size) {
-            return font
+    static func noteNSFont(size: CGFloat, weight: NSFont.Weight = .regular, italic: Bool = false) -> NSFont {
+        var font = NSFont.systemFont(ofSize: size, weight: weight)
+        if let desc = font.fontDescriptor.withDesign(.rounded) {
+            font = NSFont(descriptor: desc, size: size) ?? font
         }
-        if let font = NSFont(name: "Noteworthy-Light", size: size) {
-            return font
+        if italic {
+            font = NSFontManager.shared.convert(font, toHaveTrait: .italicFontMask)
         }
-        return NSFont.systemFont(ofSize: size, weight: weight)
+        return font
     }
 }
 
@@ -108,13 +101,12 @@ extension Animation {
 }
 
 enum NoteyLayout {
-    
-    static let deckIdleWidth: CGFloat = 6
+    static let deckIdleWidth: CGFloat = 16
     static let deckHoverWidth: CGFloat = 240
     static let deckHeightRatio: CGFloat = 0.85
 
-    static let tabIdleWidth: CGFloat = 6
-    static let tabIdleHeight: CGFloat = 32
+    static let tabIdleWidth: CGFloat = 8
+    static let tabIdleHeight: CGFloat = 34
     static let tabPeekingWidth: CGFloat = 34
     static let tabPeekingHeight: CGFloat = 74
     static let tabExpandedWidth: CGFloat = 195
