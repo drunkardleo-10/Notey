@@ -17,17 +17,23 @@ struct ColorSwatchPicker: View {
         HStack(spacing: 5) {
             ForEach(swatches, id: \.color) { swatch in
                 Button(action: { onSelect?(swatch.color) }) {
-                    RoundedRectangle(cornerRadius: 5)
+                    RoundedRectangle(cornerRadius: 5.5)
                         .fill(Color(hex: swatch.hex))
                         .frame(width: 17, height: 17)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 5)
+                            RoundedRectangle(cornerRadius: 5.5)
                                 .stroke(
                                     selected == swatch.color
                                         ? Color.textPrimary
                                         : Color.clear,
                                     lineWidth: 2
                                 )
+                        )
+                        .shadow(
+                            color: Color.black.opacity(0.18),
+                            radius: 2.5,
+                            x: 0,
+                            y: 1.5
                         )
                         .scaleEffect(selected == swatch.color ? 1.08 : 1.0)
                 }

@@ -225,27 +225,19 @@ final class DeckHoverTests: XCTestCase {
 
         deckState.tabMouseEntered(noteId: note1, windowManager: windowManager)
         XCTAssertEqual(deckState.activeHoverNoteId, note1)
-
-        let exp1 = expectation(description: "note1 expanded")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            XCTAssertEqual(deckState.expandedNoteId, note1)
-            exp1.fulfill()
-        }
-        wait(for: [exp1], timeout: 1.0)
+        XCTAssertEqual(deckState.expandedNoteId, note1)
 
         deckState.tabMouseEntered(noteId: note2, windowManager: windowManager)
         XCTAssertEqual(deckState.activeHoverNoteId, note2)
-        XCTAssertNil(deckState.expandedNoteId)
-
-        let exp2 = expectation(description: "note2 expanded")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            XCTAssertEqual(deckState.expandedNoteId, note2)
-            exp2.fulfill()
-        }
-        wait(for: [exp2], timeout: 1.0)
+        XCTAssertEqual(deckState.expandedNoteId, note2)
 
         deckState.tabMouseExited(noteId: note2)
-        XCTAssertNil(deckState.expandedNoteId)
+        let exp = expectation(description: "note2 collapsed after debounce")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            XCTAssertNil(deckState.expandedNoteId)
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
     }
 }
 

@@ -70,11 +70,12 @@ enum ScreenUtilities {
         let scr = screen(for: window)
         let f = scr.frame
         let count = max(1, noteCount)
-        let step = NoteyLayout.tabStepHeight
-        let baseHeight = NoteyLayout.tabPeekingHeight
+        let step: CGFloat = 62
+        let baseHeight = NoteyLayout.tabExpandedHeight
         let tabsHeight = CGFloat(count - 1) * step + baseHeight
         let anchorHeight: CGFloat = 44
-        let h = tabsHeight + anchorHeight + 30
+        let anchorSpacing: CGFloat = 16
+        let h = tabsHeight + anchorHeight + anchorSpacing + 30
         let x = f.origin.x + f.width - NoteyLayout.deckHoverWidth
         let y = f.origin.y + (f.height - h) / 2.0
         return CGRect(x: x, y: y, width: NoteyLayout.deckHoverWidth, height: h)

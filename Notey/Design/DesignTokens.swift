@@ -164,10 +164,10 @@ enum NoteyLayout {
     static let tabIdleHeight: CGFloat = 16
     static let tabIdlePillWidth: CGFloat = 6
     static let tabIdlePillHeight: CGFloat = 16
-    static let tabPeekingWidth: CGFloat = 44
+    static let tabPeekingWidth: CGFloat = 36
     static let tabPeekingBottomWidth: CGFloat = 36
-    static let tabPeekingHeight: CGFloat = 150
-    static let tabStepHeight: CGFloat = 70
+    static let tabPeekingHeight: CGFloat = 74
+    static let tabStepHeight: CGFloat = 74
     static let tabExpandedWidth: CGFloat = 195
     static let tabExpandedHeight: CGFloat = 150
 

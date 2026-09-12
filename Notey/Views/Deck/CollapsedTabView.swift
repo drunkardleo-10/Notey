@@ -42,11 +42,11 @@ struct CollapsedTabView: View {
                 alignment: .leading
             )
             .background(note.color.swiftUIColor)
-            .clipShape(TaperedTabShape(
-                topWidth: state.topWidth,
-                bottomWidth: state.bottomWidth,
+            .clipShape(UnevenRoundedRectangle(
                 topLeadingRadius: state.topLeadingRadius,
-                bottomLeadingRadius: state.bottomLeadingRadius
+                bottomLeadingRadius: state.bottomLeadingRadius,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 0
             ))
             .shadow(
                 color: Color.black.opacity(state.shadowAmbientOpacity),
@@ -60,11 +60,11 @@ struct CollapsedTabView: View {
                 x: state.shadowKeyX,
                 y: state.shadowKeyY
             )
-            .contentShape(TaperedTabShape(
-                topWidth: state.topWidth,
-                bottomWidth: state.bottomWidth,
+            .contentShape(UnevenRoundedRectangle(
                 topLeadingRadius: state.topLeadingRadius,
-                bottomLeadingRadius: state.bottomLeadingRadius
+                bottomLeadingRadius: state.bottomLeadingRadius,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 0
             ))
         }
         .buttonStyle(.plain)
@@ -104,9 +104,9 @@ struct CollapsedTabView: View {
                             style: StrokeStyle(lineWidth: 1.5, dash: [4.5, 3.5])
                         )
                 )
-                .padding(.trailing, isCardExpanded ? 2 : 6)
+                .padding(.trailing, 6)
         }
-        .frame(width: isCardExpanded ? 36 : NoteyLayout.tabPeekingWidth)
+        .frame(width: 36)
     }
 
     private var cardPreviewBody: some View {
@@ -249,7 +249,10 @@ private enum TabState: Equatable {
     }
 
     var height: CGFloat {
-        NoteyLayout.tabPeekingHeight
+        switch self {
+        case .peeking:  return NoteyLayout.tabPeekingHeight
+        case .expanded: return NoteyLayout.tabExpandedHeight
+        }
     }
 
     var topLeadingRadius: CGFloat {

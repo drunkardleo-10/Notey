@@ -14,7 +14,7 @@ struct EdgeDeckView: View {
             ZStack(alignment: .trailing) {
                 if deckState.isHovered {
                     VStack(alignment: .trailing, spacing: 16) {
-                        VStack(alignment: .trailing, spacing: -(NoteyLayout.tabPeekingHeight - NoteyLayout.tabStepHeight)) {
+                        VStack(alignment: .trailing, spacing: -12) {
                             ForEach(Array(noteStore.activeDeckNotes.enumerated()), id: \.element.id) { index, note in
                                 CollapsedTabView(
                                     note: note,
@@ -24,7 +24,7 @@ struct EdgeDeckView: View {
                                     onHover: { deckState.tabMouseEntered(noteId: note.id, windowManager: windowManager) },
                                     onLeave: { deckState.tabMouseExited(noteId: note.id) }
                                 )
-                                .zIndex(deckState.expandedNoteId == note.id ? 100 : Double(index + 1))
+                                .zIndex(Double(index + 1))
                             }
                         }
                         .padding(.trailing, 0)
@@ -35,13 +35,23 @@ struct EdgeDeckView: View {
                         )
                         .padding(.trailing, 0)
                     }
-                    .transition(.opacity.combined(with: .offset(x: 10)))
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .offset(x: 28)),
+                            removal: .opacity.combined(with: .offset(x: 36))
+                        )
+                    )
                 } else {
                     idleCapsule
-                        .transition(.opacity.combined(with: .offset(x: 4)))
+                        .transition(
+                            .asymmetric(
+                                insertion: .opacity.combined(with: .offset(x: 8)),
+                                removal: .opacity
+                            )
+                        )
                 }
             }
-            .animation(.noteySpring, value: deckState.isHovered)
+            .animation(.easeInOut(duration: 0.20), value: deckState.isHovered)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
         .background(Color.clear)

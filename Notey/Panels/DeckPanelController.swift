@@ -11,6 +11,7 @@ final class DeckState {
 
     private var leaveWorkItem: DispatchWorkItem?
     private var dwellWorkItem: DispatchWorkItem?
+    private var tabExitWorkItem: DispatchWorkItem?
 
     func mouseEntered(windowManager: WindowModeManager) {
         guard !isEditorOpen else { return }
@@ -30,23 +31,31 @@ final class DeckState {
         dwellWorkItem?.cancel()
         dwellWorkItem = nil
 
+        tabExitWorkItem?.cancel()
+        tabExitWorkItem = nil
+
+        if expandedNoteId != nil {
+            withAnimation(.noteyQuick) {
+                self.expandedNoteId = nil
+            }
+        }
+
         leaveWorkItem?.cancel()
 
         let work = DispatchWorkItem { [weak self] in
             guard let self else { return }
-            withAnimation(.noteySpring) {
+            withAnimation(.easeInOut(duration: 0.20)) {
                 self.isHovered = false
-                self.expandedNoteId = nil
                 self.activeHoverNoteId = nil
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
                 if !self.isHovered && !self.isEditorOpen {
                     windowManager.setMode(.deckIdle)
                 }
             }
         }
         leaveWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12, execute: work)
     }
 
     func tabMouseEntered(noteId: UUID, windowManager: WindowModeManager) {
@@ -54,6 +63,9 @@ final class DeckState {
 
         leaveWorkItem?.cancel()
         leaveWorkItem = nil
+
+        tabExitWorkItem?.cancel()
+        tabExitWorkItem = nil
 
         dwellWorkItem?.cancel()
         dwellWorkItem = nil
@@ -67,20 +79,9 @@ final class DeckState {
             }
         }
 
-        if expandedNoteId != nil && expandedNoteId != noteId {
-            withAnimation(.noteySpring) {
-                expandedNoteId = nil
-            }
+        withAnimation(.noteySpring) {
+            self.expandedNoteId = noteId
         }
-
-        let work = DispatchWorkItem { [weak self] in
-            guard let self, self.activeHoverNoteId == noteId, !self.isEditorOpen else { return }
-            withAnimation(.noteySpring) {
-                self.expandedNoteId = noteId
-            }
-        }
-        dwellWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: work)
     }
 
     func tabMouseExited(noteId: UUID) {
@@ -90,16 +91,23 @@ final class DeckState {
             dwellWorkItem = nil
         }
 
-        if expandedNoteId == noteId {
-            withAnimation(.noteySpring) {
-                expandedNoteId = nil
+        tabExitWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            if self.activeHoverNoteId == nil && self.expandedNoteId == noteId {
+                withAnimation(.noteySpring) {
+                    self.expandedNoteId = nil
+                }
             }
         }
+        tabExitWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08, execute: work)
     }
 
     func reset() {
         leaveWorkItem?.cancel()
         dwellWorkItem?.cancel()
+        tabExitWorkItem?.cancel()
         activeHoverNoteId = nil
         withAnimation(.noteyQuick) {
             isHovered = false
