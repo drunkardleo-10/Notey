@@ -31,6 +31,20 @@ extension Color {
             opacity: alpha
         )
     }
+
+    init?(hexString: String, alpha: Double = 1.0) {
+        var clean = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if clean.hasPrefix("#") {
+            clean.removeFirst()
+        }
+        if clean.count == 3 {
+            clean = clean.map { "\($0)\($0)" }.joined()
+        }
+        guard clean.count == 6, let intVal = UInt(clean, radix: 16) else {
+            return nil
+        }
+        self.init(hex: intVal, alpha: alpha)
+    }
 }
 
 extension NSColor {
@@ -40,6 +54,34 @@ extension NSColor {
     static let noteBlue     = NSColor(srgbRed: 0x82/255, green: 0xB1/255, blue: 0xFF/255, alpha: 1)
     static let noteLavender = NSColor(srgbRed: 0xCE/255, green: 0x93/255, blue: 0xD8/255, alpha: 1)
     static let cream        = NSColor(srgbRed: 0xF5/255, green: 0xEF/255, blue: 0xE6/255, alpha: 1)
+
+    convenience init?(hexString: String, alpha: CGFloat = 1.0) {
+        var clean = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if clean.hasPrefix("#") {
+            clean.removeFirst()
+        }
+        if clean.count == 3 {
+            clean = clean.map { "\($0)\($0)" }.joined()
+        }
+        guard clean.count == 6, let intVal = UInt32(clean, radix: 16) else {
+            return nil
+        }
+        let r = CGFloat((intVal >> 16) & 0xFF) / 255.0
+        let g = CGFloat((intVal >> 8) & 0xFF) / 255.0
+        let b = CGFloat(intVal & 0xFF) / 255.0
+        self.init(srgbRed: r, green: g, blue: b, alpha: alpha)
+    }
+
+    var hexString: String {
+        let rgb = usingColorSpace(.sRGB) ?? usingColorSpace(.deviceRGB)
+        guard let rgb else {
+            return "#FDC844"
+        }
+        let r = Int(round(max(0, min(1, rgb.redComponent)) * 255.0))
+        let g = Int(round(max(0, min(1, rgb.greenComponent)) * 255.0))
+        let b = Int(round(max(0, min(1, rgb.blueComponent)) * 255.0))
+        return String(format: "#%02X%02X%02X", r, g, b)
+    }
 }
 
 extension NoteColor {
@@ -50,6 +92,8 @@ extension NoteColor {
         case .mint:     return .noteMint
         case .blue:     return .noteBlue
         case .lavender: return .noteLavender
+        case .custom(let hex):
+            return Color(hexString: hex) ?? .noteYellow
         }
     }
 
@@ -60,6 +104,8 @@ extension NoteColor {
         case .mint:     return .noteMint
         case .blue:     return .noteBlue
         case .lavender: return .noteLavender
+        case .custom(let hex):
+            return NSColor(hexString: hex) ?? .noteYellow
         }
     }
 
@@ -70,6 +116,8 @@ extension NoteColor {
         case .mint:     return "#80E5D0"
         case .blue:     return "#82B1FF"
         case .lavender: return "#CE93D8"
+        case .custom(let hex):
+            return Self.normalizeHex(hex)
         }
     }
 }

@@ -97,6 +97,7 @@ final class EditorPanelController: NSObject {
 
     func close() {
         removeDeactivationObserver()
+        ColorPanelPresenter.shared.hide()
         panel.orderOut(nil)
         hostingView?.removeFromSuperview()
         hostingView = nil

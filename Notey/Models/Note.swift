@@ -1,11 +1,73 @@
 import Foundation
 
-enum NoteColor: String, Codable, CaseIterable, Sendable {
+enum NoteColor: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
     case yellow
     case coral
     case mint
     case blue
     case lavender
+    case custom(String)
+
+    public static let allCases: [NoteColor] = [
+        .yellow, .coral, .mint, .blue, .lavender
+    ]
+
+    public var rawValue: String {
+        switch self {
+        case .yellow: return "yellow"
+        case .coral: return "coral"
+        case .mint: return "mint"
+        case .blue: return "blue"
+        case .lavender: return "lavender"
+        case .custom(let hex): return Self.normalizeHex(hex)
+        }
+    }
+
+    public init(rawValue: String) {
+        switch rawValue.lowercased() {
+        case "yellow": self = .yellow
+        case "coral": self = .coral
+        case "mint": self = .mint
+        case "blue": self = .blue
+        case "lavender": self = .lavender
+        default:
+            self = .custom(Self.normalizeHex(rawValue))
+        }
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        self.init(rawValue: raw)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+
+    public static func normalizeHex(_ hex: String) -> String {
+        var clean = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        if !clean.hasPrefix("#") {
+            clean = "#" + clean
+        }
+        return clean
+    }
+
+    public var isCustom: Bool {
+        if case .custom = self {
+            return true
+        }
+        return false
+    }
+
+    public static func == (lhs: NoteColor, rhs: NoteColor) -> Bool {
+        lhs.rawValue.uppercased() == rhs.rawValue.uppercased()
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue.uppercased())
+    }
 }
 
 struct Note: Codable, Identifiable, Equatable, Sendable {

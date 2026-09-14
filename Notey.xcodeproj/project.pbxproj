@@ -10,6 +10,7 @@
 		00792F49A3F216E82D3F3666 /* OnboardingPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */; };
 		0274A986918B2E1974A1557C /* OnboardingStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AADE72DFB61179FB6F37B7 /* OnboardingStageView.swift */; };
 		056B3B94F687BE494493CA3D /* EdgeDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C8F080ECE84192F93CEBEB /* EdgeDeckView.swift */; };
+		089A73530F25B95ECDA6E034 /* Caveat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E286A042CA0F3ADB40E7C88 /* Caveat.ttf */; };
 		19BD063EDFF255ABB9BD1F59 /* WindowModeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */; };
 		21B3CF199AF4F3162D43293C /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F0529C13C77DD962956D78 /* StatusBarController.swift */; };
 		35E7338FEC5D675426D4DE33 /* EditorHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5BD8703571D3294A436AE5 /* EditorHeaderView.swift */; };
@@ -23,6 +24,7 @@
 		78E0DD7492E25DA3A1E4CB74 /* AutostartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A827202158937C7D01D82601 /* AutostartManager.swift */; };
 		7BC20BF2AA3511A824DFB247 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18152C3DC683D1A9B6A73B2E /* OnboardingView.swift */; };
 		80D7370D5072DEC847AC6992 /* EditorPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A68F2FAABE858409EFF591E /* EditorPanelController.swift */; };
+		8F7A5608576A27E2FC6E3820 /* ColorPanelPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2300FE801FA384E4707982 /* ColorPanelPresenter.swift */; };
 		90CED88D9B7106B1B26A87AA /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03197B6BBF2D04467B3F199B /* HotKeyManager.swift */; };
 		9C8D40A925976C767C459200 /* ArchivePanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A819B736280B094DD52C86FC /* ArchivePanelController.swift */; };
 		A079D64AAFCAA739D1EE26FF /* CollapsedTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD47996CC765C7FE9AAB2BEF /* CollapsedTabView.swift */; };
@@ -65,6 +67,8 @@
 		57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPanelController.swift; sourceTree = "<group>"; };
 		5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonStore.swift; sourceTree = "<group>"; };
 		60251944EC87E6C3444CBBA1 /* EditorToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolbarView.swift; sourceTree = "<group>"; };
+		6A2300FE801FA384E4707982 /* ColorPanelPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPanelPresenter.swift; sourceTree = "<group>"; };
+		7E286A042CA0F3ADB40E7C88 /* Caveat.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Caveat.ttf; sourceTree = "<group>"; };
 		9B2619FF6ABC37514A05FCF6 /* ArchiveListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveListView.swift; sourceTree = "<group>"; };
 		A1FBEDD98D82CF6701E02750 /* ColorSwatchPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSwatchPicker.swift; sourceTree = "<group>"; };
 		A819B736280B094DD52C86FC /* ArchivePanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePanelController.swift; sourceTree = "<group>"; };
@@ -155,6 +159,14 @@
 			path = System;
 			sourceTree = "<group>";
 		};
+		7640CA7F6AD0AC246D71BFA4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7E286A042CA0F3ADB40E7C88 /* Caveat.ttf */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		84C47460764236109F2761F0 = {
 			isa = PBXGroup;
 			children = (
@@ -198,6 +210,7 @@
 				935F9C39BC4613C2B8A91150 /* Design */,
 				939AB555C3BA08AF9F3F74D5 /* Models */,
 				DB94F6B784AB21ED8259773C /* Panels */,
+				7640CA7F6AD0AC246D71BFA4 /* Resources */,
 				0903BD4A9DF7A446BEB93EC9 /* Storage */,
 				F36FAD707979F1A128FC3666 /* Store */,
 				70784FF52DC85D4DE9F3B027 /* System */,
@@ -219,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				A819B736280B094DD52C86FC /* ArchivePanelController.swift */,
+				6A2300FE801FA384E4707982 /* ColorPanelPresenter.swift */,
 				C42D0713A1C7EF9D49163047 /* DeckPanelController.swift */,
 				3A68F2FAABE858409EFF591E /* EditorPanelController.swift */,
 				4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */,
@@ -274,6 +288,7 @@
 			buildConfigurationList = E1C94E028ED4BCB47E659619 /* Build configuration list for PBXNativeTarget "Notey" */;
 			buildPhases = (
 				72D1E4B5B7FB9718F2D4AEFE /* Sources */,
+				E28B814977834232F14BC042 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -317,6 +332,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		E28B814977834232F14BC042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				089A73530F25B95ECDA6E034 /* Caveat.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		72D1E4B5B7FB9718F2D4AEFE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -328,6 +354,7 @@
 				6719C582A2AEE2C040C27A70 /* ArchiveView.swift in Sources */,
 				78E0DD7492E25DA3A1E4CB74 /* AutostartManager.swift in Sources */,
 				A079D64AAFCAA739D1EE26FF /* CollapsedTabView.swift in Sources */,
+				8F7A5608576A27E2FC6E3820 /* ColorPanelPresenter.swift in Sources */,
 				CFA2F51EB455EE601AD1EEA9 /* ColorSwatchPicker.swift in Sources */,
 				DDB5B6D862C6CA1EBF5108D7 /* DeckPanelController.swift in Sources */,
 				FDA4160CF9081306FB471205 /* DesignTokens.swift in Sources */,

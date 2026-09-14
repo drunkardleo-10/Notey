@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 @testable import Notey
 
 final class JsonStoreTests: XCTestCase {
@@ -452,6 +453,67 @@ final class MarkdownNSTextViewTests: XCTestCase {
         let checkTextFont = storage.attribute(.font, at: checkTextIndex, effectiveRange: nil) as? NSFont
         XCTAssertNotNil(checkTextFont)
         XCTAssertTrue(checkTextFont?.fontName.contains("Caveat") ?? false)
+    }
+}
+
+final class NoteColorAndPickerTests: XCTestCase {
+
+    func testPresetNoteColors() throws {
+        let presets: [NoteColor] = [.yellow, .coral, .mint, .blue, .lavender]
+        for preset in presets {
+            XCTAssertFalse(preset.isCustom)
+            XCTAssertEqual(NoteColor(rawValue: preset.rawValue), preset)
+            XCTAssertNotNil(preset.swiftUIColor)
+            XCTAssertNotNil(preset.nsColor)
+            XCTAssertTrue(preset.hexCode.hasPrefix("#"))
+        }
+    }
+
+    func testCustomNoteColorParsingAndEquality() {
+        let custom1 = NoteColor(rawValue: "#FF5722")
+        let custom2 = NoteColor(rawValue: "ff5722")
+        let custom3 = NoteColor.custom("#FF5722")
+
+        XCTAssertTrue(custom1.isCustom)
+        XCTAssertTrue(custom2.isCustom)
+        XCTAssertEqual(custom1, custom2)
+        XCTAssertEqual(custom1, custom3)
+        XCTAssertEqual(custom1.hexCode, "#FF5722")
+        XCTAssertEqual(custom2.hexCode, "#FF5722")
+    }
+
+    func testCustomColorPersistenceAndJsonRoundTrip() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("notey-custom-color-test-\(UUID().uuidString)")
+        let store = JsonStore(basePath: tempDir)
+
+        let customColor = NoteColor.custom("#3498DB")
+        let note = Note(
+            title: "Custom Blue Note",
+            body: "Body with custom color",
+            color: customColor
+        )
+
+        try store.saveNote(note)
+
+        let loaded = try store.loadNote(id: note.id)
+        XCTAssertEqual(loaded.color, customColor)
+        XCTAssertTrue(loaded.color.isCustom)
+        XCTAssertEqual(loaded.color.hexCode, "#3498DB")
+
+        try? FileManager.default.removeItem(at: tempDir)
+    }
+
+    func testHexColorHelpers() {
+        let color = Color(hexString: "#FF8000")
+        XCTAssertNotNil(color)
+
+        let nsColor = NSColor(hexString: "#00FF00")
+        XCTAssertNotNil(nsColor)
+        XCTAssertEqual(nsColor?.hexString.uppercased(), "#00FF00")
+
+        let invalid = Color(hexString: "not-a-color")
+        XCTAssertNil(invalid)
     }
 }
 
