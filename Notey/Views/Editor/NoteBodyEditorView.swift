@@ -101,6 +101,7 @@ struct MarkdownEditorRepresentable: NSViewRepresentable {
         textView.textContainer?.lineFragmentPadding = 0
 
         textView.isRichText = true
+        textView.usesFontPanel = false
         textView.isEditable = true
         textView.isSelectable = true
         textView.importsGraphics = false
@@ -196,12 +197,17 @@ final class MarkdownNSTextView: NSTextView {
         isSelectable = true
         allowsUndo = true
         isRichText = true
+        usesFontPanel = false
         importsGraphics = false
         allowsImageEditing = false
         isAutomaticQuoteSubstitutionEnabled = false
         isAutomaticDashSubstitutionEnabled = false
         isAutomaticTextReplacementEnabled = false
     }
+
+    override func updateFontPanel() {}
+
+    override func changeColor(_ sender: Any?) {}
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()

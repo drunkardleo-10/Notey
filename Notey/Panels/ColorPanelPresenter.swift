@@ -64,6 +64,13 @@ final class ColorPanelPresenter: NSObject {
 
     @objc private func colorPanelAction(_ sender: NSColorPanel) {
         guard !isInternalUpdate else { return }
+
+        if let currentEvent = NSApp.currentEvent, let eventWindow = currentEvent.window {
+            if eventWindow !== sender && !sender.isKeyWindow {
+                return
+            }
+        }
+
         let hex = sender.color.hexString
         let noteColor = NoteColor.custom(hex)
         onColorChange?(noteColor)
