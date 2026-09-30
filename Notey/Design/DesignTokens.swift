@@ -223,8 +223,8 @@ enum NoteyLayout {
     static let editorHeight: CGFloat = 400
     static let editorCornerRadius: CGFloat = 20
 
-    static let archiveWidth: CGFloat = 620
-    static let archiveHeight: CGFloat = 440
+    static let archiveWidth: CGFloat = 640
+    static let archiveHeight: CGFloat = 500
 
     static let onboardingWidth: CGFloat = 740
     static let onboardingHeight: CGFloat = 460

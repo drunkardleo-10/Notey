@@ -60,7 +60,6 @@ struct ColorSwatchPicker: View {
                 .accessibilityLabel("\(swatch.color.rawValue) note color")
             }
 
-            // Custom Color Picker Swatch
             Button(action: {
                 ColorPanelPresenter.shared.show(color: selected) { newColor in
                     onSelect?(newColor)

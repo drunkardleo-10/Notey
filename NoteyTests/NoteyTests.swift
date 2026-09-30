@@ -240,6 +240,32 @@ final class DeckHoverTests: XCTestCase {
         }
         wait(for: [exp], timeout: 1.0)
     }
+
+    func testDeckMinimumDeckOpeningCascade() {
+        let windowManager = WindowModeManager()
+        let deckState = DeckState()
+        let note1 = UUID()
+
+        XCTAssertFalse(deckState.isHovered)
+        XCTAssertFalse(deckState.isDeckOpening)
+
+        deckState.mouseEntered(windowManager: windowManager)
+        XCTAssertTrue(deckState.isHovered)
+        XCTAssertTrue(deckState.isDeckOpening)
+        XCTAssertNil(deckState.expandedNoteId)
+
+        deckState.tabMouseEntered(noteId: note1, windowManager: windowManager)
+        XCTAssertEqual(deckState.activeHoverNoteId, note1)
+        XCTAssertNil(deckState.expandedNoteId)
+
+        let exp = expectation(description: "note1 expands after dwell")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            XCTAssertFalse(deckState.isDeckOpening)
+            XCTAssertEqual(deckState.expandedNoteId, note1)
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+    }
 }
 
 final class MarkdownBridgeTests: XCTestCase {
@@ -514,6 +540,108 @@ final class NoteColorAndPickerTests: XCTestCase {
 
         let invalid = Color(hexString: "not-a-color")
         XCTAssertNil(invalid)
+    }
+}
+
+final class ScribbleEngineTests: XCTestCase {
+
+    func testFNV1aHashConsistency() {
+        let emptyHash = ScribbleEngine.fnv1aHash("")
+        XCTAssertEqual(emptyHash, 2166136261)
+
+        let hash1 = ScribbleEngine.fnv1aHash("Buy groceries")
+        let hash2 = ScribbleEngine.fnv1aHash("Buy groceries")
+        let hash3 = ScribbleEngine.fnv1aHash("Walk the dog")
+
+        XCTAssertEqual(hash1, hash2)
+        XCTAssertNotEqual(hash1, hash3)
+    }
+
+    func testScribbleRandomGenerator() {
+        var rand1 = ScribbleEngine.Random(seed: 12345)
+        var rand2 = ScribbleEngine.Random(seed: 12345)
+
+        let val1 = rand1.nextDouble()
+        let val2 = rand2.nextDouble()
+        XCTAssertEqual(val1, val2, accuracy: 1e-9)
+        XCTAssertGreaterThanOrEqual(val1, 0.0)
+        XCTAssertLessThan(val1, 1.0)
+
+        let between = rand1.between(10, 20)
+        XCTAssertGreaterThanOrEqual(between, 10)
+        XCTAssertLessThanOrEqual(between, 20)
+    }
+
+    func testPenEasingCurve() {
+        XCTAssertEqual(ScribbleEngine.penEase(0.0), 0.0, accuracy: 1e-5)
+        XCTAssertEqual(ScribbleEngine.penEase(1.0), 1.0, accuracy: 1e-5)
+
+        let mid = ScribbleEngine.penEase(0.5)
+        XCTAssertGreaterThan(mid, 0.0)
+        XCTAssertLessThan(mid, 1.0)
+
+        var prev: Double = 0.0
+        for i in 1...10 {
+            let t = Double(i) / 10.0
+            let val = ScribbleEngine.penEase(t)
+            XCTAssertGreaterThanOrEqual(val, prev)
+            prev = val
+        }
+    }
+
+    func testCheckmarkGenerationAndTrimming() {
+        let check = ScribbleEngine.generateCheckmark(seed: 42)
+        XCTAssertGreaterThanOrEqual(check.start.x, 3.5)
+        XCTAssertLessThanOrEqual(check.start.x, 7.0)
+        XCTAssertGreaterThanOrEqual(check.start.y, 10.0)
+        XCTAssertLessThanOrEqual(check.start.y, 14.0)
+
+        XCTAssertGreaterThanOrEqual(check.valley.y, 16.5)
+        XCTAssertLessThanOrEqual(check.valley.y, 19.5)
+
+        XCTAssertGreaterThanOrEqual(check.width, 1.75)
+        XCTAssertLessThanOrEqual(check.width, 2.3)
+
+        let box = CGRect(x: 10, y: 10, width: 20, height: 20)
+        let fullPath = check.cgPath(in: box, progress: 1.0)
+        XCTAssertFalse(fullPath.isEmpty)
+
+        let emptyPath = check.cgPath(in: box, progress: 0.0)
+        XCTAssertTrue(emptyPath.isEmpty)
+
+        let halfPath = check.cgPath(in: box, progress: 0.5)
+        XCTAssertFalse(halfPath.isEmpty)
+    }
+
+    func testStrikeGenerationAndDuration() {
+        let strike = ScribbleEngine.generateStrike(x0: 10, x1: 150, y: 30, seed: 100)
+        XCTAssertGreaterThanOrEqual(strike.width, 1.4)
+        XCTAssertLessThanOrEqual(strike.width, 1.9)
+
+        let fullPath = strike.cgPath(progress: 1.0)
+        XCTAssertFalse(fullPath.isEmpty)
+
+        let emptyPath = strike.cgPath(progress: 0.0)
+        XCTAssertTrue(emptyPath.isEmpty)
+
+        let shortDur = ScribbleEngine.strikeDuration(x0: 0, x1: 50)
+        XCTAssertGreaterThanOrEqual(shortDur, 0.12)
+        XCTAssertLessThanOrEqual(shortDur, 0.26)
+
+        let longDur = ScribbleEngine.strikeDuration(x0: 0, x1: 500)
+        XCTAssertEqual(longDur, 0.26, accuracy: 1e-4)
+    }
+
+    func testDeCasteljauCubicSplit() {
+        let p0 = CGPoint(x: 0, y: 0)
+        let p1 = CGPoint(x: 10, y: 20)
+        let p2 = CGPoint(x: 30, y: 20)
+        let p3 = CGPoint(x: 40, y: 0)
+
+        let split = ScribbleEngine.splitCubic(p0: p0, p1: p1, p2: p2, p3: p3, at: 0.5)
+        XCTAssertEqual(split.0, p0)
+        XCTAssertEqual(split.3.x, 20.0, accuracy: 1e-4)
+        XCTAssertEqual(split.3.y, 15.0, accuracy: 1e-4)
     }
 }
 

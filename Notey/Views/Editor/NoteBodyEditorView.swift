@@ -169,6 +169,19 @@ final class MarkdownNSTextView: NSTextView {
     private var checkboxFont: NSFont = NSFont.systemFont(ofSize: 22, weight: .medium)
     private var isApplyingFormat: Bool = false
 
+    private struct CheckboxAnimState {
+        let lineLocation: Int
+        let startTime: TimeInterval
+        let isChecking: Bool
+        let lineDuration: Double
+        let invalidationRect: NSRect
+    }
+
+    private var lineSeeds: [Int: UInt32] = [:]
+    private var activeAnimation: CheckboxAnimState?
+    private var animationTimer: Timer?
+
+
     override init(frame frameRect: NSRect, textContainer: NSTextContainer?) {
         super.init(frame: frameRect, textContainer: textContainer)
         configure()
@@ -262,6 +275,115 @@ final class MarkdownNSTextView: NSTextView {
         refreshFormatting()
     }
 
+    private func seedForLine(at location: Int, text: String) -> UInt32 {
+        if let existing = lineSeeds[location] {
+            return existing
+        }
+        let s = ScribbleEngine.fnv1aHash(text)
+        lineSeeds[location] = s
+        return s
+    }
+
+    private func startCheckAnimation(at location: Int, isChecking: Bool, invalidationRect: NSRect) {
+        animationTimer?.invalidate()
+        let now = CACurrentMediaTime()
+        let totalDuration = isChecking ? (ScribbleEngine.strikeDelay + 0.32) : ScribbleEngine.fadeDuration
+        activeAnimation = CheckboxAnimState(
+            lineLocation: location,
+            startTime: now,
+            isChecking: isChecking,
+            lineDuration: totalDuration,
+            invalidationRect: invalidationRect
+        )
+
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            let currentTime = CACurrentMediaTime()
+            if let anim = self.activeAnimation {
+                if currentTime - anim.startTime >= anim.lineDuration {
+                    self.activeAnimation = nil
+                    timer.invalidate()
+                    self.animationTimer = nil
+                    self.setNeedsDisplay(anim.invalidationRect)
+                } else {
+                    self.setNeedsDisplay(anim.invalidationRect)
+                }
+            } else {
+                timer.invalidate()
+                self.animationTimer = nil
+            }
+        }
+        if let timer = animationTimer {
+            RunLoop.main.add(timer, forMode: .common)
+        }
+    }
+
+    private func animationProgressForCheck(at location: Int, isChecked: Bool) -> (progress: CGFloat, alpha: CGFloat) {
+        guard let anim = activeAnimation, anim.lineLocation == location else {
+            return isChecked ? (1.0, 1.0) : (0.0, 0.0)
+        }
+        let elapsed = CACurrentMediaTime() - anim.startTime
+        if anim.isChecking {
+            let t = max(0.0, min(1.0, elapsed / ScribbleEngine.checkDuration))
+            let eased = ScribbleEngine.penEase(t)
+            return (CGFloat(eased), 1.0)
+        } else {
+            let fadeElapsed = max(0.0, min(1.0, elapsed / ScribbleEngine.fadeDuration))
+            let alpha = max(0.0, 1.0 - CGFloat(fadeElapsed))
+            return (1.0, alpha)
+        }
+    }
+
+    private func animationProgressForStrike(at location: Int, fragmentIndex: Int, textLength: CGFloat, isChecked: Bool) -> (progress: CGFloat, alpha: CGFloat) {
+        guard let anim = activeAnimation, anim.lineLocation == location else {
+            return isChecked ? (1.0, 1.0) : (0.0, 0.0)
+        }
+        let elapsed = CACurrentMediaTime() - anim.startTime
+        if anim.isChecking {
+            let fragDelay = ScribbleEngine.strikeDelay + Double(fragmentIndex) * 0.12
+            if elapsed < fragDelay {
+                return (0.0, 1.0)
+            }
+            let fragElapsed = elapsed - fragDelay
+            let duration = max(0.12, min(0.26, Double(textLength) * 0.0009))
+            let t = max(0.0, min(1.0, fragElapsed / duration))
+            let eased = ScribbleEngine.penEase(t)
+            return (CGFloat(eased), 1.0)
+        } else {
+            let fadeElapsed = max(0.0, min(1.0, elapsed / ScribbleEngine.fadeDuration))
+            let alpha = max(0.0, 1.0 - CGFloat(fadeElapsed))
+            return (1.0, alpha)
+        }
+    }
+
+    private func toggleCheckmark(at charIndex: Int, currentChar: String) {
+        let nsString = string as NSString
+        guard charIndex < nsString.length else { return }
+        let lineRange = nsString.lineRange(for: NSRange(location: charIndex, length: 1))
+        let isNowChecking = (currentChar == "☐")
+        let newChar = isNowChecking ? "☑" : "☐"
+
+        var invalidationRect = bounds
+        if let layoutManager = layoutManager, let textContainer = textContainer {
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: lineRange, actualCharacterRange: nil)
+            let origin = textContainerOrigin
+            let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer).offsetBy(dx: origin.x, dy: origin.y)
+            invalidationRect = rect.insetBy(dx: -16, dy: -12)
+        }
+
+        if isNowChecking {
+            lineSeeds[lineRange.location] = UInt32.random(in: 1...UInt32.max)
+        }
+
+        replaceCharacters(in: NSRange(location: charIndex, length: 1), with: newChar)
+        didChangeText()
+        refreshFormatting()
+        startCheckAnimation(at: lineRange.location, isChecking: isNowChecking, invalidationRect: invalidationRect)
+    }
+
     override func mouseDown(with event: NSEvent) {
         if !NSApp.isActive {
             NSApp.activate(ignoringOtherApps: true)
@@ -284,11 +406,7 @@ final class MarkdownNSTextView: NSTextView {
                     let boxY = rect.midY - (boxSize / 2)
                     let clickableRect = NSRect(x: boxX - 4, y: boxY - 4, width: boxSize + 8, height: boxSize + 8)
                     if clickableRect.contains(point) {
-                        let newChar = char == "☐" ? "☑" : "☐"
-                        replaceCharacters(in: NSRange(location: index, length: 1), with: newChar)
-                        didChangeText()
-                        refreshFormatting()
-                        needsDisplay = true
+                        toggleCheckmark(at: index, currentChar: char)
                         return
                     }
                 }
@@ -299,11 +417,7 @@ final class MarkdownNSTextView: NSTextView {
             if charIndex < nsString.length {
                 let char = nsString.substring(with: NSRange(location: charIndex, length: 1))
                 if char == "☐" || char == "☑" {
-                    let newChar = char == "☐" ? "☑" : "☐"
-                    replaceCharacters(in: NSRange(location: charIndex, length: 1), with: newChar)
-                    didChangeText()
-                    refreshFormatting()
-                    needsDisplay = true
+                    toggleCheckmark(at: charIndex, currentChar: char)
                     return
                 }
             }
@@ -320,54 +434,104 @@ final class MarkdownNSTextView: NSTextView {
 
         var index = 0
         while index < nsString.length {
-            let char = nsString.substring(with: NSRange(location: index, length: 1))
-            if char == "☐" || char == "☑" {
-                let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
+            let lineRange = nsString.lineRange(for: NSRange(location: index, length: 0))
+            let lineStr = nsString.substring(with: lineRange)
+
+            let isUnchecked = lineStr.hasPrefix("☐ ")
+            let isChecked = lineStr.hasPrefix("☑ ")
+
+            if isUnchecked || isChecked {
+                let glyphIndex = layoutManager.glyphIndexForCharacter(at: lineRange.location)
                 let rect = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).offsetBy(dx: origin.x, dy: origin.y)
 
-                if dirtyRect.intersects(rect) || dirtyRect.contains(rect.origin) {
-                    let boxSize: CGFloat = 19
-                    let boxX = rect.minX + 1.5
-                    let boxY = rect.midY - (boxSize / 2)
-                    let boxRect = NSRect(x: boxX, y: boxY, width: boxSize, height: boxSize)
+                let boxSize: CGFloat = 19
+                let boxX = rect.minX + 1.5
+                let boxY = rect.midY - (boxSize / 2)
+                let boxRect = NSRect(x: boxX, y: boxY, width: boxSize, height: boxSize)
 
-                    if char == "☐" {
-                        let strokeRect = boxRect.insetBy(dx: 0.9, dy: 0.9)
-                        let path = NSBezierPath(roundedRect: strokeRect, xRadius: 5.0, yRadius: 5.0)
+                if dirtyRect.intersects(boxRect.insetBy(dx: -12, dy: -12)) {
+                    let strokeRect = boxRect.insetBy(dx: 0.75, dy: 0.75)
+                    let boxPath = NSBezierPath(roundedRect: strokeRect, xRadius: 5.5, yRadius: 5.5)
 
-                        baseColor.withAlphaComponent(0.04).setFill()
-                        path.fill()
+                    baseColor.withAlphaComponent(0.04).setFill()
+                    boxPath.fill()
 
-                        baseColor.withAlphaComponent(0.85).setStroke()
-                        path.lineWidth = 1.8
-                        path.stroke()
-                    } else {
-                        let fillPath = NSBezierPath(roundedRect: boxRect, xRadius: 5.2, yRadius: 5.2)
+                    baseColor.withAlphaComponent(0.40).setStroke()
+                    boxPath.lineWidth = 1.4
+                    boxPath.stroke()
 
-                        baseColor.withAlphaComponent(0.92).setFill()
-                        fillPath.fill()
+                    let (checkProgress, checkAlpha) = animationProgressForCheck(at: lineRange.location, isChecked: isChecked)
+                    if checkProgress > 0.001 && checkAlpha > 0.001 {
+                        let seed = seedForLine(at: lineRange.location, text: lineStr)
+                        let checkData = ScribbleEngine.generateCheckmark(seed: seed)
+                        let checkCgPath = checkData.cgPath(in: boxRect, progress: checkProgress)
 
-                        let check = NSBezierPath()
-                        check.lineWidth = 2.4
-                        check.lineCapStyle = .round
-                        check.lineJoinStyle = .round
+                        if let ctx = NSGraphicsContext.current?.cgContext {
+                            ctx.saveGState()
+                            ctx.addPath(checkCgPath)
+                            ctx.setLineWidth(checkData.width * (boxSize / 20.0))
+                            ctx.setLineCap(.round)
+                            ctx.setLineJoin(.round)
+                            ctx.setStrokeColor(baseColor.withAlphaComponent(0.92 * checkAlpha).cgColor)
+                            ctx.strokePath()
+                            ctx.restoreGState()
+                        }
+                    }
+                }
 
-                        let startX = boxRect.minX + 4.8
-                        let startY = boxRect.minY + 9.8
-                        let midX = boxRect.minX + 7.8
-                        let midY = boxRect.minY + 14.0
-                        let endX = boxRect.minX + 14.2
-                        let endY = boxRect.minY + 5.2
+                let prefixLen = 2
+                let textLength = max(0, lineRange.length - prefixLen - (lineStr.hasSuffix("\n") ? 1 : 0))
+                if textLength > 0 {
+                    let (strikeProgress, strikeAlpha) = animationProgressForStrike(at: lineRange.location, fragmentIndex: 0, textLength: 100, isChecked: isChecked)
+                    if strikeProgress > 0.001 && strikeAlpha > 0.001 {
+                        let textCharRange = NSRange(location: lineRange.location + prefixLen, length: textLength)
+                        let textGlyphRange = layoutManager.glyphRange(forCharacterRange: textCharRange, actualCharacterRange: nil)
 
-                        check.move(to: NSPoint(x: startX, y: startY))
-                        check.line(to: NSPoint(x: midX, y: midY))
-                        check.line(to: NSPoint(x: endX, y: endY))
-                        noteColor.nsColor.setStroke()
-                        check.stroke()
+                        let seed = seedForLine(at: lineRange.location, text: lineStr)
+                        var fragmentIndex = 0
+
+                        layoutManager.enumerateLineFragments(forGlyphRange: textGlyphRange) { (fragRect, usedRect, container, effRange, stop) in
+                            let subRange = NSIntersectionRange(effRange, textGlyphRange)
+                            guard subRange.length > 0 else { return }
+
+                            let fragBounds = layoutManager.boundingRect(forGlyphRange: subRange, in: textContainer).offsetBy(dx: origin.x, dy: origin.y)
+
+                            if dirtyRect.intersects(fragBounds.insetBy(dx: -10, dy: -6)) {
+                                let (fragProgress, fragAlpha) = self.animationProgressForStrike(
+                                    at: lineRange.location,
+                                    fragmentIndex: fragmentIndex,
+                                    textLength: fragBounds.width,
+                                    isChecked: isChecked
+                                )
+
+                                if fragProgress > 0.001 && fragAlpha > 0.001 {
+                                    let fragSeed = seed &+ UInt32(fragmentIndex * 37 + 1)
+                                    let strikeData = ScribbleEngine.generateStrike(
+                                        x0: fragBounds.minX,
+                                        x1: fragBounds.maxX,
+                                        y: fragBounds.midY + 0.5,
+                                        seed: fragSeed
+                                    )
+
+                                    let strikeCgPath = strikeData.cgPath(progress: fragProgress)
+                                    if let ctx = NSGraphicsContext.current?.cgContext {
+                                        ctx.saveGState()
+                                        ctx.addPath(strikeCgPath)
+                                        ctx.setLineWidth(strikeData.width)
+                                        ctx.setLineCap(.round)
+                                        ctx.setLineJoin(.round)
+                                        ctx.setStrokeColor(self.baseColor.withAlphaComponent(0.62 * fragAlpha).cgColor)
+                                        ctx.strokePath()
+                                        ctx.restoreGState()
+                                    }
+                                }
+                            }
+                            fragmentIndex += 1
+                        }
                     }
                 }
             }
-            index += 1
+            index = lineRange.location + lineRange.length
         }
     }
 
@@ -878,10 +1042,11 @@ final class MarkdownNSTextView: NSTextView {
                 if textLen > 0 {
                     let textRange = NSRange(location: lineRange.location + prefixLen, length: textLen)
                     let mutedColor = baseColor.withAlphaComponent(0.42)
-                    textStorage.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: textRange)
-                    textStorage.addAttribute(.strikethroughColor, value: mutedColor, range: textRange)
+                    textStorage.removeAttribute(.strikethroughStyle, range: textRange)
+                    textStorage.removeAttribute(.strikethroughColor, range: textRange)
                     textStorage.addAttribute(.foregroundColor, value: mutedColor, range: textRange)
                     ensureLineFonts(in: textRange)
+
                 }
             } else {
                 let defaultPara = NSMutableParagraphStyle()

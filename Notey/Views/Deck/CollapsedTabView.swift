@@ -122,7 +122,7 @@ struct CollapsedTabView: View {
                 ForEach(previewItems) { item in
                     HStack(spacing: 6) {
                         if item.isTask {
-                            checkboxIcon(completed: item.isCompleted)
+                            checkboxIcon(completed: item.isCompleted, text: item.text)
                         }
                         Text(item.attributedText)
                             .font(NoteyFonts.note(size: 15))
@@ -141,27 +141,17 @@ struct CollapsedTabView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private func checkboxIcon(completed: Bool) -> some View {
-        ZStack {
-            if completed {
-                RoundedRectangle(cornerRadius: 3.5)
-                    .fill(Color.textPrimary)
-                    .frame(width: 14, height: 14)
-
-                Image(systemName: "checkmark")
-                    .font(.system(size: 8.5, weight: .black))
-                    .foregroundStyle(note.color.swiftUIColor)
-            } else {
-                RoundedRectangle(cornerRadius: 3.5)
-                    .stroke(Color.textPrimary.opacity(0.45), lineWidth: 1.5)
-                    .background(
-                        RoundedRectangle(cornerRadius: 3.5)
-                            .fill(Color.textPrimary.opacity(0.06))
-                    )
-                    .frame(width: 14, height: 14)
-            }
-        }
+    private func checkboxIcon(completed: Bool, text: String = "") -> some View {
+        ScribbleCheckboxIcon(
+            checked: completed,
+            seed: ScribbleEngine.fnv1aHash(text),
+            size: 14,
+            strokeColor: Color.textPrimary.opacity(0.40),
+            fillColor: Color.textPrimary.opacity(0.04),
+            checkColor: Color.textPrimary
+        )
     }
+
 
     private var previewItems: [PreviewItem] {
         guard !note.body.isEmpty else { return [] }
@@ -184,6 +174,7 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: true,
                     isCompleted: isDone,
+                    text: text,
                     attributedText: parseInlineMarkdown(text)
                 ))
             } else if trimmed.hasPrefix("☐ ") || trimmed.hasPrefix("☑ ") {
@@ -193,6 +184,7 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: true,
                     isCompleted: isDone,
+                    text: text,
                     attributedText: parseInlineMarkdown(text)
                 ))
             } else {
@@ -200,6 +192,7 @@ struct CollapsedTabView: View {
                     id: idx,
                     isTask: false,
                     isCompleted: false,
+                    text: trimmed,
                     attributedText: parseInlineMarkdown(trimmed)
                 ))
             }
@@ -220,6 +213,7 @@ private struct PreviewItem: Identifiable {
     let id: Int
     let isTask: Bool
     let isCompleted: Bool
+    let text: String
     let attributedText: AttributedString
 }
 

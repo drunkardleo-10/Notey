@@ -7,6 +7,8 @@ struct EdgeDeckView: View {
     var onSelectNote: ((Note) -> Void)?
     var onAddNote: (() -> Void)?
 
+    @State private var isCascaded: Bool = false
+
     var body: some View {
         HStack(spacing: 0) {
             Spacer(minLength: 0)
@@ -25,6 +27,13 @@ struct EdgeDeckView: View {
                                     onLeave: { deckState.tabMouseExited(noteId: note.id) }
                                 )
                                 .zIndex(Double(index + 1))
+                                .offset(x: isCascaded ? 0 : 42)
+                                .opacity(isCascaded ? 1.0 : 0.0)
+                                .animation(
+                                    .spring(response: 0.22, dampingFraction: 0.76)
+                                    .delay(Double(index) * 0.038),
+                                    value: isCascaded
+                                )
                             }
                         }
                         .padding(.trailing, 0)
@@ -34,13 +43,29 @@ struct EdgeDeckView: View {
                             onAddNote: onAddNote
                         )
                         .padding(.trailing, 0)
+                        .offset(x: isCascaded ? 0 : 42)
+                        .opacity(isCascaded ? 1.0 : 0.0)
+                        .animation(
+                            .spring(response: 0.22, dampingFraction: 0.76)
+                            .delay(Double(noteStore.activeDeckNotes.count) * 0.038),
+                            value: isCascaded
+                        )
                     }
                     .transition(
                         .asymmetric(
-                            insertion: .opacity.combined(with: .offset(x: 28)),
+                            insertion: .opacity,
                             removal: .opacity.combined(with: .offset(x: 36))
                         )
                     )
+                    .onAppear {
+                        isCascaded = false
+                        DispatchQueue.main.async {
+                            isCascaded = true
+                        }
+                    }
+                    .onDisappear {
+                        isCascaded = false
+                    }
                 } else {
                     idleCapsule
                         .transition(

@@ -8,92 +8,88 @@ struct ArchiveDetailView: View {
 
     var body: some View {
         if let note {
-            VStack(alignment: .leading, spacing: 0) {
-                
-                HStack(spacing: 10) {
-                    
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(note.color.swiftUIColor)
-                        .frame(width: 6, height: 32)
+            VStack(spacing: 0) {
+                HStack(alignment: .center) {
+                    HStack(spacing: 8) {
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(note.color.swiftUIColor)
+                            .frame(width: 10, height: 10)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(note.title)
-                            .font(NoteyFonts.ui(size: 18, weight: .bold))
+                        Text(note.updatedAt.archivedHeaderString)
+                            .font(NoteyFonts.ui(size: 11, weight: .bold))
+                            .foregroundStyle(Color.textPrimary.opacity(0.55))
+                    }
+
+                    Spacer()
+
+                    HStack(spacing: 8) {
+                        Button(action: { onRestore?(note.id) }) {
+                            Text("Restore to deck")
+                                .font(NoteyFonts.ui(size: 12, weight: .medium))
+                                .foregroundStyle(Color.textPrimary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .fill(Color.textPrimary.opacity(0.08))
+                                )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button(action: { onDelete?(note.id) }) {
+                            Text("Delete")
+                                .font(NoteyFonts.ui(size: 12, weight: .medium))
+                                .foregroundStyle(Color.textPrimary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .fill(Color.textPrimary.opacity(0.08))
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 12)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(note.title.isEmpty ? "Untitled note" : note.title)
+                            .font(NoteyFonts.ui(size: 17, weight: .bold))
                             .foregroundStyle(Color.textPrimary)
                             .lineLimit(1)
 
-                        Text("Archived \(note.updatedAt.relativeString)")
-                            .font(NoteyFonts.ui(size: 12))
-                            .foregroundStyle(Color.textMuted)
+                        Spacer()
+
+                        Text(note.updatedAt.editedString)
+                            .font(NoteyFonts.ui(size: 11))
+                            .foregroundStyle(Color.textPrimary.opacity(0.6))
                     }
 
-                    Spacer()
-                }
-                .padding(.init(top: 18, leading: 18, bottom: 14, trailing: 18))
-
-                Rectangle()
-                    .fill(Color.textPrimary.opacity(0.08))
-                    .frame(height: 1)
-
-                ScrollView(.vertical, showsIndicators: true) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        let lines = note.body.components(separatedBy: "\n")
-                        ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
-                            bodyLine(line)
+                    ScrollView(.vertical, showsIndicators: true) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            let lines = note.body.components(separatedBy: "\n")
+                            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                                bodyLine(line)
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .padding(.init(top: 14, leading: 18, bottom: 14, trailing: 18))
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-
-                Spacer(minLength: 0)
-
-                Rectangle()
-                    .fill(Color.textPrimary.opacity(0.08))
-                    .frame(height: 1)
-
-                HStack {
-                    
-                    Button(action: { onDelete?(note.id) }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 12, weight: .medium))
-                            Text("Delete")
-                                .font(NoteyFonts.ui(size: 13, weight: .semibold))
-                        }
-                        .foregroundStyle(Color.textDanger)
-                        .padding(.vertical, 7)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.textDanger.opacity(0.1))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    Spacer()
-
-                    Button(action: { onRestore?(note.id) }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.uturn.backward")
-                                .font(.system(size: 12, weight: .medium))
-                            Text("Restore")
-                                .font(NoteyFonts.ui(size: 13, weight: .semibold))
-                        }
-                        .foregroundStyle(Color.textPrimary)
-                        .padding(.vertical, 7)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.textPrimary.opacity(0.08))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.init(top: 12, leading: 18, bottom: 12, trailing: 18))
+                .padding(18)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(note.color.swiftUIColor)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
+            .background(Color.cream)
         } else {
-            
             VStack(spacing: 12) {
                 Image(systemName: "archivebox")
                     .font(.system(size: 36, weight: .ultraLight))
@@ -104,6 +100,7 @@ struct ArchiveDetailView: View {
                     .foregroundStyle(Color.textMuted)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.cream)
         }
     }
 
@@ -112,32 +109,28 @@ struct ArchiveDetailView: View {
         let trimmed = raw.trimmingCharacters(in: .whitespaces)
 
         if trimmed.isEmpty {
-            Spacer()
-                .frame(height: 8)
+            Spacer().frame(height: 8)
         } else if let match = parseTask(trimmed) {
             HStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 3)
-                        .stroke(Color.textPrimary, lineWidth: 1.4)
-                        .fill(match.completed ? Color.textPrimary : Color.clear)
-                        .frame(width: 14, height: 14)
+                ScribbleCheckboxIcon(
+                    checked: match.completed,
+                    seed: ScribbleEngine.fnv1aHash(match.text),
+                    size: 14,
+                    strokeColor: Color.textPrimary.opacity(0.40),
+                    fillColor: Color.textPrimary.opacity(0.04),
+                    checkColor: Color.textPrimary
+                )
 
-                    if match.completed {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 7, weight: .bold))
-                            .foregroundStyle(Color.white)
-                    }
-                }
 
                 Text(match.text)
-                    .font(NoteyFonts.note(size: 17))
+                    .font(NoteyFonts.note(size: 18))
                     .foregroundStyle(Color.textPrimary)
                     .strikethrough(match.completed)
                     .opacity(match.completed ? 0.55 : 1)
             }
         } else {
             Text(trimmed)
-                .font(NoteyFonts.note(size: 17))
+                .font(NoteyFonts.note(size: 18))
                 .foregroundStyle(Color.textPrimary)
         }
     }

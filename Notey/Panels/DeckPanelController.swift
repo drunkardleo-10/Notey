@@ -8,10 +8,12 @@ final class DeckState {
     var expandedNoteId: UUID? = nil
     var activeHoverNoteId: UUID? = nil
     var isEditorOpen: Bool = false
+    var isDeckOpening: Bool = false
 
     private var leaveWorkItem: DispatchWorkItem?
     private var dwellWorkItem: DispatchWorkItem?
     private var tabExitWorkItem: DispatchWorkItem?
+    private var deckOpeningWorkItem: DispatchWorkItem?
 
     func mouseEntered(windowManager: WindowModeManager) {
         guard !isEditorOpen else { return }
@@ -20,9 +22,18 @@ final class DeckState {
 
         if !isHovered {
             windowManager.setMode(.deckHover)
+            isDeckOpening = true
             withAnimation(.noteySpring) {
                 isHovered = true
             }
+
+            let openingWork = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                self.isDeckOpening = false
+            }
+            deckOpeningWorkItem?.cancel()
+            deckOpeningWorkItem = openingWork
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28, execute: openingWork)
         }
     }
 
@@ -30,6 +41,10 @@ final class DeckState {
         activeHoverNoteId = nil
         dwellWorkItem?.cancel()
         dwellWorkItem = nil
+
+        deckOpeningWorkItem?.cancel()
+        deckOpeningWorkItem = nil
+        isDeckOpening = false
 
         tabExitWorkItem?.cancel()
         tabExitWorkItem = nil
@@ -79,8 +94,19 @@ final class DeckState {
             }
         }
 
-        withAnimation(.noteySpring) {
-            self.expandedNoteId = noteId
+        if isDeckOpening {
+            let work = DispatchWorkItem { [weak self] in
+                guard let self, self.activeHoverNoteId == noteId, !self.isEditorOpen else { return }
+                withAnimation(.noteySpring) {
+                    self.expandedNoteId = noteId
+                }
+            }
+            dwellWorkItem = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.26, execute: work)
+        } else {
+            withAnimation(.noteySpring) {
+                self.expandedNoteId = noteId
+            }
         }
     }
 
@@ -108,6 +134,8 @@ final class DeckState {
         leaveWorkItem?.cancel()
         dwellWorkItem?.cancel()
         tabExitWorkItem?.cancel()
+        deckOpeningWorkItem?.cancel()
+        isDeckOpening = false
         activeHoverNoteId = nil
         withAnimation(.noteyQuick) {
             isHovered = false
