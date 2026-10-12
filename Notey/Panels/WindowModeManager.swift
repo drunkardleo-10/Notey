@@ -4,6 +4,7 @@ import Observation
 enum WindowMode: String {
     case deckIdle       = "deck"
     case deckHover      = "deck_hover"
+    case deckMove       = "deck_move"
     case editor         = "editor"
     case archive        = "archive"
     case onboarding     = "onboarding"
@@ -45,6 +46,8 @@ final class WindowModeManager {
             showDeckIdle()
         case .deckHover:
             showDeckHover()
+        case .deckMove:
+            showDeckMove()
         case .editor:
             showEditor()
         case .archive:
@@ -59,8 +62,18 @@ final class WindowModeManager {
         let count = controller.noteStore.activeDeckNotes.count
         let frame = ScreenUtilities.edgeDeckIdleFrame(
             for: controller.panel,
-            noteCount: count
+            noteCount: count,
+            edge: controller.deckState.edge,
+            alongOffset: controller.deckState.alongOffset
         )
+        controller.panel.setFrame(frame, display: true, animate: false)
+        controller.panel.orderFrontRegardless()
+        controller.updateTrackingArea()
+    }
+
+    private func showDeckMove() {
+        guard let controller = deckController else { return }
+        let frame = ScreenUtilities.edgeDeckMoveFrame(for: controller.panel)
         controller.panel.setFrame(frame, display: true, animate: false)
         controller.panel.orderFrontRegardless()
         controller.updateTrackingArea()
@@ -71,7 +84,9 @@ final class WindowModeManager {
         let count = controller.noteStore.activeDeckNotes.count
         let frame = ScreenUtilities.edgeDeckHoverFrame(
             for: controller.panel,
-            noteCount: count
+            noteCount: count,
+            edge: controller.deckState.edge,
+            alongOffset: controller.deckState.alongOffset
         )
         controller.panel.setFrame(frame, display: true, animate: false)
         controller.panel.orderFrontRegardless()
@@ -98,6 +113,8 @@ final class WindowModeManager {
             showDeckIdle()
         case .deckHover:
             showDeckHover()
+        case .deckMove:
+            showDeckMove()
         case .editor:
             showEditor()
         case .archive:

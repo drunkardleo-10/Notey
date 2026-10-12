@@ -1,10 +1,35 @@
 import SwiftUI
 
 struct EdgeAnchorView: View {
+    let edge: DeckEdge
     let isDeckHovered: Bool
     var onAddNote: (() -> Void)?
+    var onGripChanged: (() -> Void)?
+    var onGripEnded: (() -> Void)?
+    var onGripHover: ((Bool) -> Void)?
+
+    @State private var isGripDragging = false
+    @State private var isGripHovered = false
 
     var body: some View {
+        Group {
+            if edge.isVertical {
+                VStack(spacing: 6) {
+                    addButton
+                    gripHandle
+                }
+                .frame(width: NoteyLayout.tabPeekingWidth, height: NoteyLayout.anchorHeight - 2)
+            } else {
+                HStack(spacing: 6) {
+                    addButton
+                    gripHandle
+                }
+                .frame(width: NoteyLayout.anchorHeight - 2, height: NoteyLayout.tabPeekingWidth)
+            }
+        }
+    }
+
+    private var addButton: some View {
         Button(action: { onAddNote?() }) {
             Image(systemName: "plus")
                 .font(.system(size: 12, weight: .bold))
@@ -25,7 +50,51 @@ struct EdgeAnchorView: View {
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityLabel("Add new note")
-        .frame(width: NoteyLayout.tabPeekingWidth, height: 32)
+        .frame(width: 32, height: 32)
+    }
+
+    private var gripHandle: some View {
+        let columns = edge.isVertical ? 2 : 3
+        let rows = edge.isVertical ? 3 : 2
+
+        return VStack(spacing: 3) {
+            ForEach(0..<rows, id: \.self) { _ in
+                HStack(spacing: 3) {
+                    ForEach(0..<columns, id: \.self) { _ in
+                        Circle().fill(Color.white.opacity(0.85)).frame(width: 3.5, height: 3.5)
+                    }
+                }
+            }
+        }
+        .frame(width: edge.isVertical ? 26 : 30, height: edge.isVertical ? 28 : 24)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.black.opacity(0.32))
+        )
+        .contentShape(Rectangle())
+        .onHover { inside in
+            isGripHovered = inside
+            onGripHover?(inside)
+            if isGripDragging { return }
+            if inside {
+                NSCursor.openHand.set()
+            } else {
+                NSCursor.arrow.set()
+            }
+        }
+        .gesture(
+            DragGesture(minimumDistance: 2, coordinateSpace: .global)
+                .onChanged { _ in
+                    isGripDragging = true
+                    NSCursor.closedHand.set()
+                    onGripChanged?()
+                }
+                .onEnded { _ in
+                    isGripDragging = false
+                    onGripEnded?()
+                }
+        )
+        .accessibilityLabel("Drag to move the deck")
     }
 }
 

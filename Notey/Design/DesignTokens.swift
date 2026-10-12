@@ -241,6 +241,7 @@ enum NoteyLayout {
     static let deckIdleWidth: CGFloat = 14
     static let deckHoverWidth: CGFloat = 240
     static let deckHeightRatio: CGFloat = 0.85
+    static let anchorHeight: CGFloat = 70
 
     static let tabIdleWidth: CGFloat = 6
     static let tabIdleHeight: CGFloat = 16

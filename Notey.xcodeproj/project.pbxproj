@@ -15,9 +15,11 @@
 		19BD063EDFF255ABB9BD1F59 /* WindowModeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */; };
 		21B3CF199AF4F3162D43293C /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F0529C13C77DD962956D78 /* StatusBarController.swift */; };
 		35E7338FEC5D675426D4DE33 /* EditorHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5BD8703571D3294A436AE5 /* EditorHeaderView.swift */; };
+		3DAB64C2DC25F5BC264B18E8 /* BackgroundCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465E13ABA2C073805222C0CA /* BackgroundCursor.swift */; };
 		447469F3687FF7851A3178A3 /* EditorToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60251944EC87E6C3444CBBA1 /* EditorToolbarView.swift */; };
 		4576CA4460794EABB6CFF4E7 /* ScreenUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE391EC529FAC3809D4E22CA /* ScreenUtilities.swift */; };
 		5676BE6C90372D2D90F826A8 /* JsonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */; };
+		5C1AFC6720E67ADB55DFF34B /* DeckMoveOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FEB1706AA62B73F75EED89 /* DeckMoveOverlay.swift */; };
 		610F3CA1FD5F358C654F3131 /* NoteyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0C02ACB41BDE430274DF40 /* NoteyTests.swift */; };
 		66970A43E901BCE2432C1845 /* NoteyPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */; };
 		6719C582A2AEE2C040C27A70 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D275F3A77E1ABF4BC68C3450 /* ArchiveView.swift */; };
@@ -38,6 +40,7 @@
 		B784225B12C0645BFF9C7EDE /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFDEBF5C0F1F366B6059CA0 /* NoteStore.swift */; };
 		BB17F795E02371C4C480DDF4 /* EdgeAnchorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2B2BAD50C3A54E39212359 /* EdgeAnchorView.swift */; };
 		BE77BE800F5402C7A467E45E /* ArchiveListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2619FF6ABC37514A05FCF6 /* ArchiveListView.swift */; };
+		BF8F75669EC796592C6E8881 /* DeckEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33E1683A2AB9AB4696A7632C /* DeckEdge.swift */; };
 		C935BFE55B77D63F07B3EE67 /* ArchiveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FDB4573B47B91BA941FB17 /* ArchiveDetailView.swift */; };
 		CFA2F51EB455EE601AD1EEA9 /* ColorSwatchPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1FBEDD98D82CF6701E02750 /* ColorSwatchPicker.swift */; };
 		DDB5B6D862C6CA1EBF5108D7 /* DeckPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42D0713A1C7EF9D49163047 /* DeckPanelController.swift */; };
@@ -62,11 +65,14 @@
 		18152C3DC683D1A9B6A73B2E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		1997E30A4E5F007FECCF2E90 /* Notey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BF1AC25F65F2F11ABEC1743 /* WindowModeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowModeManager.swift; sourceTree = "<group>"; };
+		20FEB1706AA62B73F75EED89 /* DeckMoveOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckMoveOverlay.swift; sourceTree = "<group>"; };
 		333823D4521AFCD647BC0807 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		33E1683A2AB9AB4696A7632C /* DeckEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckEdge.swift; sourceTree = "<group>"; };
 		34FDB4573B47B91BA941FB17 /* ArchiveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDetailView.swift; sourceTree = "<group>"; };
 		3A68F2FAABE858409EFF591E /* EditorPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPanelController.swift; sourceTree = "<group>"; };
 		41CAE95B6F0BCB82BC4038D9 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		4608FEDCA513A22FF17BE795 /* NoteyPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteyPanel.swift; sourceTree = "<group>"; };
+		465E13ABA2C073805222C0CA /* BackgroundCursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundCursor.swift; sourceTree = "<group>"; };
 		498BC43193C7B9CE6FDD5259 /* MarkdownUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownUtilities.swift; sourceTree = "<group>"; };
 		57FF707BD636EFCA459A9DE7 /* OnboardingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPanelController.swift; sourceTree = "<group>"; };
 		5D0C5081FD64B42BB1EC8048 /* JsonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonStore.swift; sourceTree = "<group>"; };
@@ -171,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				A827202158937C7D01D82601 /* AutostartManager.swift */,
+				465E13ABA2C073805222C0CA /* BackgroundCursor.swift */,
 				03197B6BBF2D04467B3F199B /* HotKeyManager.swift */,
 				E8F0529C13C77DD962956D78 /* StatusBarController.swift */,
 				B25F7BBD1BF2328AA24F02B9 /* UpdaterController.swift */,
@@ -199,6 +206,7 @@
 		935F9C39BC4613C2B8A91150 /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				33E1683A2AB9AB4696A7632C /* DeckEdge.swift */,
 				41CAE95B6F0BCB82BC4038D9 /* DesignTokens.swift */,
 				BA28B5133DC7031A17C5D221 /* ScribbleEngine.swift */,
 			);
@@ -276,6 +284,7 @@
 			isa = PBXGroup;
 			children = (
 				DD47996CC765C7FE9AAB2BEF /* CollapsedTabView.swift */,
+				20FEB1706AA62B73F75EED89 /* DeckMoveOverlay.swift */,
 				ED2B2BAD50C3A54E39212359 /* EdgeAnchorView.swift */,
 				F3C8F080ECE84192F93CEBEB /* EdgeDeckView.swift */,
 				F8EA244890410054EEB628FE /* FannedCardView.swift */,
@@ -380,9 +389,12 @@
 				9C8D40A925976C767C459200 /* ArchivePanelController.swift in Sources */,
 				6719C582A2AEE2C040C27A70 /* ArchiveView.swift in Sources */,
 				78E0DD7492E25DA3A1E4CB74 /* AutostartManager.swift in Sources */,
+				3DAB64C2DC25F5BC264B18E8 /* BackgroundCursor.swift in Sources */,
 				A079D64AAFCAA739D1EE26FF /* CollapsedTabView.swift in Sources */,
 				8F7A5608576A27E2FC6E3820 /* ColorPanelPresenter.swift in Sources */,
 				CFA2F51EB455EE601AD1EEA9 /* ColorSwatchPicker.swift in Sources */,
+				BF8F75669EC796592C6E8881 /* DeckEdge.swift in Sources */,
+				5C1AFC6720E67ADB55DFF34B /* DeckMoveOverlay.swift in Sources */,
 				DDB5B6D862C6CA1EBF5108D7 /* DeckPanelController.swift in Sources */,
 				FDA4160CF9081306FB471205 /* DesignTokens.swift in Sources */,
 				BB17F795E02371C4C480DDF4 /* EdgeAnchorView.swift in Sources */,
@@ -464,7 +476,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -483,7 +495,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -582,7 +594,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -595,7 +607,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = Notey;

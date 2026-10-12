@@ -19,7 +19,7 @@ private let onboardingSteps: [OnboardingStepInfo] = [
     OnboardingStepInfo(
         step: 2,
         title: "Hover the edge to\nfan",
-        body: "Moving your cursor to the edge slides the notes out into a fanned stack. Hover any note to lift it and read it without clicking.",
+        body: "Moving your cursor to the edge slides the notes out into a fanned stack. Hover any note to lift it and read it without clicking. Drag a tab up or down to rearrange your deck.",
         badgeText: "Try it",
         badgeDesc: "move your cursor to the right edge"
     ),

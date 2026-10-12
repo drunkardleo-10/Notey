@@ -80,6 +80,7 @@ struct Note: Codable, Identifiable, Equatable, Sendable {
     var isArchived: Bool
     var createdAt: Date
     var updatedAt: Date
+    var sortIndex: Int?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -91,6 +92,7 @@ struct Note: Codable, Identifiable, Equatable, Sendable {
         case isArchived
         case createdAt
         case updatedAt
+        case sortIndex
     }
 
     init(
@@ -102,7 +104,8 @@ struct Note: Codable, Identifiable, Equatable, Sendable {
         isPinned: Bool = false,
         isArchived: Bool = false,
         createdAt: Date = Date(),
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        sortIndex: Int? = nil
     ) {
         self.id = id
         self.title = title
@@ -113,6 +116,7 @@ struct Note: Codable, Identifiable, Equatable, Sendable {
         self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.sortIndex = sortIndex
     }
 
     mutating func markUpdated() {

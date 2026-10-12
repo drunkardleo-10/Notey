@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CollapsedTabView: View {
     let note: Note
+    let edge: DeckEdge
     let isDeckHovered: Bool
     let isCardExpanded: Bool
     var onSelect: (() -> Void)?
@@ -26,46 +27,52 @@ struct CollapsedTabView: View {
         isCardExpanded ? .expanded : .peeking
     }
 
-    var body: some View {
-        Button(action: { onSelect?() }) {
-            HStack(spacing: 0) {
-                tabHandle
+    private var tabSize: CGSize {
+        edge.isVertical
+            ? CGSize(width: state.depth, height: state.along)
+            : CGSize(width: state.along, height: state.depth)
+    }
 
-                if state == .expanded {
-                    cardPreviewBody
-                        .transition(.opacity.combined(with: .offset(x: 10)))
-                }
-            }
-            .frame(
-                width: state.width,
-                height: state.height,
-                alignment: .leading
-            )
-            .background(note.color.swiftUIColor)
-            .clipShape(UnevenRoundedRectangle(
-                topLeadingRadius: state.topLeadingRadius,
-                bottomLeadingRadius: state.bottomLeadingRadius,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: 0
-            ))
-            .shadow(
-                color: Color.black.opacity(state.shadowAmbientOpacity),
-                radius: state.shadowAmbientRadius,
-                x: state.shadowAmbientX,
-                y: state.shadowAmbientY
-            )
-            .shadow(
-                color: Color.black.opacity(state.shadowKeyOpacity),
-                radius: state.shadowKeyRadius,
-                x: state.shadowKeyX,
-                y: state.shadowKeyY
-            )
-            .contentShape(UnevenRoundedRectangle(
-                topLeadingRadius: state.topLeadingRadius,
-                bottomLeadingRadius: state.bottomLeadingRadius,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: 0
-            ))
+    private var tabShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
+            cornerRadii: edge.farCornerRadii(state.topLeadingRadius, state.bottomLeadingRadius)
+        )
+    }
+
+    private func shadowOffset(_ depthAmount: CGFloat, _ alongAmount: CGFloat) -> CGSize {
+        let away = -depthAmount.magnitude
+        if edge.isVertical {
+            return CGSize(width: away * edge.outward.width, height: alongAmount)
+        }
+        return CGSize(width: alongAmount, height: away * edge.outward.height)
+    }
+
+    var body: some View {
+        let ambient = shadowOffset(state.shadowAmbientX, state.shadowAmbientY)
+        let key = shadowOffset(state.shadowKeyX, state.shadowKeyY)
+
+        Button(action: { onSelect?() }) {
+            tabContent
+                .frame(
+                    width: tabSize.width,
+                    height: tabSize.height,
+                    alignment: edge.farAlignment
+                )
+                .background(note.color.swiftUIColor)
+                .clipShape(tabShape)
+                .shadow(
+                    color: Color.black.opacity(state.shadowAmbientOpacity),
+                    radius: state.shadowAmbientRadius,
+                    x: ambient.width,
+                    y: ambient.height
+                )
+                .shadow(
+                    color: Color.black.opacity(state.shadowKeyOpacity),
+                    radius: state.shadowKeyRadius,
+                    x: key.width,
+                    y: key.height
+                )
+                .contentShape(tabShape)
         }
         .buttonStyle(.plain)
         .onHover { hovering in
@@ -80,8 +87,67 @@ struct CollapsedTabView: View {
         .accessibilityLabel(note.title)
     }
 
+    @ViewBuilder
+    private var tabContent: some View {
+        let reveal = AnyTransition.opacity.combined(
+            with: .offset(x: edge.outward.width * 10, y: edge.outward.height * 10)
+        )
+        switch edge {
+        case .right:
+            HStack(spacing: 0) {
+                tabHandle
+                if state == .expanded { cardPreviewBody.transition(reveal) }
+            }
+        case .left:
+            HStack(spacing: 0) {
+                if state == .expanded { cardPreviewBody.transition(reveal) }
+                tabHandle
+            }
+        case .bottom:
+            VStack(spacing: 0) {
+                tabHandle
+                if state == .expanded { cardPreviewBody.transition(reveal) }
+            }
+        case .top:
+            VStack(spacing: 0) {
+                if state == .expanded { cardPreviewBody.transition(reveal) }
+                tabHandle
+            }
+        }
+    }
+
+    private var dividerAlignment: Alignment {
+        edge.alignment
+    }
+
     private var tabHandle: some View {
-        ZStack(alignment: .trailing) {
+        ZStack(alignment: dividerAlignment) {
+            handleLabel
+
+            Rectangle()
+                .fill(Color.clear)
+                .frame(
+                    width: edge.isVertical ? 1.5 : nil,
+                    height: edge.isVertical ? nil : 1.5
+                )
+                .overlay(
+                    PerforationDivider(horizontal: !edge.isVertical)
+                        .stroke(
+                            Color.textPrimary.opacity(0.20),
+                            style: StrokeStyle(lineWidth: 1.5, dash: [4.5, 3.5])
+                        )
+                )
+                .padding(edge == .right ? .trailing : edge == .left ? .leading : edge == .bottom ? .bottom : .top, 6)
+        }
+        .frame(
+            width: edge.isVertical ? NoteyLayout.tabPeekingWidth : nil,
+            height: edge.isVertical ? nil : NoteyLayout.tabPeekingWidth
+        )
+    }
+
+    @ViewBuilder
+    private var handleLabel: some View {
+        if edge.isVertical {
             Text(tabLabel)
                 .font(NoteyFonts.ui(size: 11, weight: .heavy))
                 .tracking(1.4)
@@ -92,21 +158,19 @@ struct CollapsedTabView: View {
                 .frame(width: 28, height: NoteyLayout.tabStepHeight)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(.top, 4)
-                .padding(.leading, 2)
-
-            Rectangle()
-                .fill(Color.clear)
-                .frame(width: 1.5)
-                .overlay(
-                    PerforationDivider()
-                        .stroke(
-                            Color.textPrimary.opacity(0.20),
-                            style: StrokeStyle(lineWidth: 1.5, dash: [4.5, 3.5])
-                        )
-                )
-                .padding(.trailing, 6)
+                .padding(.leading, edge == .left ? 6 : 2)
+        } else {
+            Text(tabLabel)
+                .font(NoteyFonts.ui(size: 11, weight: .heavy))
+                .tracking(1.4)
+                .foregroundStyle(Color.textPrimary.opacity(0.72))
+                .fixedSize()
+                .lineLimit(1)
+                .frame(height: 28)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.leading, 8)
+                .padding(.top, edge == .top ? 6 : 2)
         }
-        .frame(width: 36)
     }
 
     private var cardPreviewBody: some View {
@@ -221,7 +285,7 @@ private enum TabState: Equatable {
     case peeking
     case expanded
 
-    var width: CGFloat {
+    var depth: CGFloat {
         switch self {
         case .peeking:  return NoteyLayout.tabPeekingWidth
         case .expanded: return NoteyLayout.tabExpandedWidth
@@ -242,7 +306,7 @@ private enum TabState: Equatable {
         }
     }
 
-    var height: CGFloat {
+    var along: CGFloat {
         switch self {
         case .peeking:  return NoteyLayout.tabPeekingHeight
         case .expanded: return NoteyLayout.tabExpandedHeight
@@ -367,10 +431,17 @@ struct TaperedTabShape: Shape {
 }
 
 private struct PerforationDivider: Shape {
+    var horizontal: Bool = false
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        if horizontal {
+            path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        } else {
+            path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        }
         return path
     }
 }

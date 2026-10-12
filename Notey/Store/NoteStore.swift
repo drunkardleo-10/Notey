@@ -24,6 +24,7 @@ final class NoteStore {
     func loadNotes() {
         do {
             notes = try jsonStore.loadAllNotes()
+            normalizeOrder()
         } catch {
             print("[NoteStore] Failed to load notes: \(error)")
             notes = []
@@ -32,7 +33,8 @@ final class NoteStore {
 
     @discardableResult
     func createNote(title: String, body: String, color: NoteColor) -> Note {
-        let note = Note(title: title, body: body, color: color)
+        var note = Note(title: title, body: body, color: color)
+        note.sortIndex = (notes.compactMap(\.sortIndex).min() ?? 0) - 1
         do {
             try jsonStore.saveNote(note)
             notes.insert(note, at: 0)
@@ -46,6 +48,9 @@ final class NoteStore {
     func saveNote(_ note: Note) -> Note {
         var updated = note
         updated.markUpdated()
+        if let current = notes.first(where: { $0.id == updated.id }) {
+            updated.sortIndex = current.sortIndex
+        }
         do {
             try jsonStore.saveNote(updated)
             if let idx = notes.firstIndex(where: { $0.id == updated.id }) {
@@ -106,6 +111,53 @@ final class NoteStore {
             print("[NoteStore] Failed to search notes: \(error)")
             return []
         }
+    }
+
+    func moveDeckNote(id: UUID, to targetIndex: Int) {
+        var deck = activeDeckNotes
+        guard let from = deck.firstIndex(where: { $0.id == id }), !deck.isEmpty else { return }
+        let to = min(max(targetIndex, 0), deck.count - 1)
+        guard from != to else { return }
+
+        let moved = deck.remove(at: from)
+        deck.insert(moved, at: to)
+
+        for (position, note) in deck.enumerated() {
+            guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { continue }
+            guard notes[idx].sortIndex != position else { continue }
+            notes[idx].sortIndex = position
+            do {
+                try jsonStore.saveNote(notes[idx])
+            } catch {
+                print("[NoteStore] Failed to save note order: \(error)")
+            }
+        }
+
+        notes = sortedByOrder(notes)
+    }
+
+    private func normalizeOrder() {
+        if notes.contains(where: { $0.sortIndex == nil }) {
+            for idx in notes.indices where notes[idx].sortIndex != idx {
+                notes[idx].sortIndex = idx
+                do {
+                    try jsonStore.saveNote(notes[idx])
+                } catch {
+                    print("[NoteStore] Failed to migrate note order: \(error)")
+                }
+            }
+        }
+        notes = sortedByOrder(notes)
+    }
+
+    private func sortedByOrder(_ list: [Note]) -> [Note] {
+        list.enumerated()
+            .sorted { lhs, rhs in
+                let l = lhs.element.sortIndex ?? Int.max
+                let r = rhs.element.sortIndex ?? Int.max
+                return l == r ? lhs.offset < rhs.offset : l < r
+            }
+            .map(\.element)
     }
 
     private static let guideSeededKey = "hasSeededGuideNotesV1"

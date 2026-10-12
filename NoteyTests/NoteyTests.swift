@@ -646,3 +646,74 @@ final class ScribbleEngineTests: XCTestCase {
 }
 
 
+
+@MainActor
+final class NoteOrderTests: XCTestCase {
+
+    private var tempDir: URL!
+
+    override func setUp() {
+        super.setUp()
+        tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("notey-order-\(UUID().uuidString)")
+    }
+
+    override func tearDown() {
+        try? FileManager.default.removeItem(at: tempDir)
+        super.tearDown()
+    }
+
+    private func makeStore() -> NoteStore {
+        NoteStore(jsonStore: JsonStore(basePath: tempDir))
+    }
+
+    func testNewNotesGoToTopAndMoveIsPersisted() {
+        let store = makeStore()
+        let first = store.createNote(title: "A", body: "", color: .yellow)
+        let second = store.createNote(title: "B", body: "", color: .coral)
+        let third = store.createNote(title: "C", body: "", color: .mint)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["C", "B", "A"])
+
+        store.moveDeckNote(id: third.id, to: 2)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["B", "A", "C"])
+
+        store.moveDeckNote(id: first.id, to: 0)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["A", "B", "C"])
+
+        let reloaded = makeStore()
+        reloaded.loadNotes()
+        XCTAssertEqual(reloaded.activeDeckNotes.map(\.title), ["A", "B", "C"])
+        XCTAssertEqual(second.title, "B")
+    }
+
+    func testMoveClampsAndArchivedNotesStayOutOfDeck() {
+        let store = makeStore()
+        let a = store.createNote(title: "A", body: "", color: .yellow)
+        let b = store.createNote(title: "B", body: "", color: .coral)
+        _ = store.createNote(title: "C", body: "", color: .mint)
+
+        store.moveDeckNote(id: a.id, to: -5)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["A", "C", "B"])
+
+        store.moveDeckNote(id: a.id, to: 99)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["C", "B", "A"])
+
+        store.archiveNote(id: b.id)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["C", "A"])
+        store.moveDeckNote(id: a.id, to: 0)
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["A", "C"])
+    }
+
+    func testLegacyNotesWithoutSortIndexKeepRecentFirstOrder() throws {
+        let json = JsonStore(basePath: tempDir)
+        let older = Note(title: "Old", body: "", color: .yellow, updatedAt: Date(timeIntervalSince1970: 1_000))
+        let newer = Note(title: "New", body: "", color: .coral, updatedAt: Date(timeIntervalSince1970: 2_000))
+        try json.saveNote(older)
+        try json.saveNote(newer)
+
+        let store = makeStore()
+        store.loadNotes()
+        XCTAssertEqual(store.activeDeckNotes.map(\.title), ["New", "Old"])
+        XCTAssertEqual(store.activeDeckNotes.compactMap(\.sortIndex), [0, 1])
+    }
+}

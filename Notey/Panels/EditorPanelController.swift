@@ -112,21 +112,12 @@ final class EditorPanelController: NSObject {
     }
 
     private func positionPanel() {
-        guard let screenGeo = ScreenUtilities.cursorScreenGeometry() else { return }
-
-        let deckWidth = NoteyLayout.deckIdleWidth
-        let editorX = screenGeo.x + screenGeo.width - deckWidth - NoteyLayout.editorWidth - 16
-        let editorY = screenGeo.y + (screenGeo.height - NoteyLayout.editorHeight) / 2.0
-
-        panel.setFrame(
-            CGRect(
-                x: editorX,
-                y: editorY,
-                width: NoteyLayout.editorWidth,
-                height: NoteyLayout.editorHeight
-            ),
-            display: true
+        let state = windowManager.deckController?.deckState
+        let frame = ScreenUtilities.editorFrame(
+            edge: state?.edge ?? .right,
+            alongOffset: state?.alongOffset ?? 0
         )
+        panel.setFrame(frame, display: true)
     }
 
     private func setupDeactivationObserver() {
