@@ -48,6 +48,7 @@ final class OnboardingPanelController: NSObject {
         }
 
         NSApp.activate(ignoringOtherApps: true)
+        panel.orderFrontRegardless()
         panel.makeKeyAndOrderFront(nil)
     }
 

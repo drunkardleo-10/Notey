@@ -9,13 +9,22 @@ let package = Package(
     products: [
         .executable(name: "Notey", targets: ["Notey"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")
+    ],
     targets: [
         .executableTarget(
             name: "Notey",
+            dependencies: [
+                .product(name: "Sparkle", package: "Sparkle")
+            ],
             path: "Notey",
-            exclude: ["Info.plist", "Notey.entitlements"],
+            exclude: ["Info.plist", "Notey.entitlements", "Resources/Assets.xcassets"],
             resources: [
                 .copy("Resources/Caveat.ttf")
+            ],
+            linkerSettings: [
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@loader_path"])
             ]
         ),
         .testTarget(

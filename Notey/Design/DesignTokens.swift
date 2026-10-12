@@ -201,6 +201,40 @@ extension Animation {
     static let noteySpring = Animation.spring(response: 0.26, dampingFraction: 0.82)
     static let noteyQuick  = Animation.spring(response: 0.18, dampingFraction: 0.78)
     static let noteyPop    = Animation.spring(response: 0.24, dampingFraction: 0.7)
+
+    static func deckCascade(index: Int, count: Int, opening: Bool) -> Animation {
+        let order = opening ? index : count - 1 - index
+        return Animation
+            .timingCurve(0.2, 1.08, 0.3, 1.0, duration: DeckCascade.duration(opening: opening))
+            .delay(Double(order) * DeckCascade.step(count: count, opening: opening))
+    }
+}
+
+enum DeckCascade {
+    static let speed: Double = 1.6
+    static let fanDegrees: Double = 1.4
+    static let tabPitch: CGFloat = 62
+    static let openingHold: Double = 0.5 * 0.5 * speed
+
+    static func duration(opening: Bool) -> Double {
+        (opening ? 0.5 : 0.3) * speed
+    }
+
+    static func step(count: Int, opening: Bool) -> Double {
+        min(0.3 / Double(max(count - 1, 1)), opening ? 0.045 : 0.03) * speed
+    }
+
+    static func closeDuration(count: Int) -> Double {
+        duration(opening: false) + Double(max(count - 1, 0)) * step(count: count, opening: false)
+    }
+
+    static func fanAngle(index: Int, noteCount: Int) -> Double {
+        (Double(index) - Double(noteCount - 1) / 2) * fanDegrees
+    }
+
+    static func collapsedOffset(index: Int, noteCount: Int) -> CGFloat {
+        (CGFloat(noteCount - 1) / 2 - CGFloat(index)) * tabPitch
+    }
 }
 
 enum NoteyLayout {

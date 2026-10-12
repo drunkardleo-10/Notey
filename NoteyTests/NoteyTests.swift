@@ -259,7 +259,7 @@ final class DeckHoverTests: XCTestCase {
         XCTAssertNil(deckState.expandedNoteId)
 
         let exp = expectation(description: "note1 expands after dwell")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + DeckCascade.openingHold + 0.05) {
             XCTAssertFalse(deckState.isDeckOpening)
             XCTAssertEqual(deckState.expandedNoteId, note1)
             exp.fulfill()

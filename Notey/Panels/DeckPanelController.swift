@@ -9,6 +9,8 @@ final class DeckState {
     var activeHoverNoteId: UUID? = nil
     var isEditorOpen: Bool = false
     var isDeckOpening: Bool = false
+    var noteCount: Int = 1
+    var closesInstantly: Bool = false
 
     private var leaveWorkItem: DispatchWorkItem?
     private var dwellWorkItem: DispatchWorkItem?
@@ -21,6 +23,7 @@ final class DeckState {
         leaveWorkItem = nil
 
         if !isHovered {
+            closesInstantly = false
             windowManager.setMode(.deckHover)
             isDeckOpening = true
             withAnimation(.noteySpring) {
@@ -33,7 +36,7 @@ final class DeckState {
             }
             deckOpeningWorkItem?.cancel()
             deckOpeningWorkItem = openingWork
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28, execute: openingWork)
+            DispatchQueue.main.asyncAfter(deadline: .now() + DeckCascade.openingHold, execute: openingWork)
         }
     }
 
@@ -63,7 +66,8 @@ final class DeckState {
                 self.isHovered = false
                 self.activeHoverNoteId = nil
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+            let hold = DeckCascade.closeDuration(count: noteCount) + 0.12
+            DispatchQueue.main.asyncAfter(deadline: .now() + hold) {
                 if !self.isHovered && !self.isEditorOpen {
                     windowManager.setMode(.deckIdle)
                 }
@@ -88,6 +92,7 @@ final class DeckState {
         activeHoverNoteId = noteId
 
         if !isHovered {
+            closesInstantly = false
             windowManager.setMode(.deckHover)
             withAnimation(.noteySpring) {
                 isHovered = true
@@ -102,7 +107,7 @@ final class DeckState {
                 }
             }
             dwellWorkItem = work
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.26, execute: work)
+            DispatchQueue.main.asyncAfter(deadline: .now() + DeckCascade.openingHold, execute: work)
         } else {
             withAnimation(.noteySpring) {
                 self.expandedNoteId = noteId
@@ -137,6 +142,7 @@ final class DeckState {
         deckOpeningWorkItem?.cancel()
         isDeckOpening = false
         activeHoverNoteId = nil
+        closesInstantly = true
         withAnimation(.noteyQuick) {
             isHovered = false
             expandedNoteId = nil
@@ -161,7 +167,10 @@ final class DeckPanelController: NSResponder {
         set {
             deckState.isEditorOpen = newValue
             deckState.reset()
-            windowManager.setMode(.deckIdle)
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.deckState.isEditorOpen == newValue else { return }
+                self.windowManager.setMode(.deckIdle)
+            }
         }
     }
 

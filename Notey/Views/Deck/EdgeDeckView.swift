@@ -8,13 +8,19 @@ struct EdgeDeckView: View {
     var onAddNote: (() -> Void)?
 
     @State private var isCascaded: Bool = false
+    @State private var isStackMounted: Bool = false
+    @State private var unmountWork: DispatchWorkItem?
+
+    private var cascadeCount: Int {
+        noteStore.activeDeckNotes.count + 1
+    }
 
     var body: some View {
         HStack(spacing: 0) {
             Spacer(minLength: 0)
 
             ZStack(alignment: .trailing) {
-                if deckState.isHovered {
+                if isStackMounted {
                     VStack(alignment: .trailing, spacing: 16) {
                         VStack(alignment: .trailing, spacing: -12) {
                             ForEach(Array(noteStore.activeDeckNotes.enumerated()), id: \.element.id) { index, note in
@@ -26,12 +32,23 @@ struct EdgeDeckView: View {
                                     onHover: { deckState.tabMouseEntered(noteId: note.id, windowManager: windowManager) },
                                     onLeave: { deckState.tabMouseExited(noteId: note.id) }
                                 )
+                                .frame(width: NoteyLayout.tabExpandedWidth, alignment: .trailing)
                                 .zIndex(Double(index + 1))
-                                .offset(x: isCascaded ? 0 : 42)
+                                .rotationEffect(
+                                    .degrees(fanAngle(index: index, noteId: note.id)),
+                                    anchor: .trailing
+                                )
+                                .animation(.noteySpring, value: deckState.expandedNoteId)
+                                .offset(
+                                    x: isCascaded ? 0 : 42,
+                                    y: isCascaded ? 0 : DeckCascade.collapsedOffset(
+                                        index: index,
+                                        noteCount: noteStore.activeDeckNotes.count
+                                    )
+                                )
                                 .opacity(isCascaded ? 1.0 : 0.0)
                                 .animation(
-                                    .spring(response: 0.22, dampingFraction: 0.76)
-                                    .delay(Double(index) * 0.038),
+                                    .deckCascade(index: index, count: cascadeCount, opening: isCascaded),
                                     value: isCascaded
                                 )
                             }
@@ -46,26 +63,15 @@ struct EdgeDeckView: View {
                         .offset(x: isCascaded ? 0 : 42)
                         .opacity(isCascaded ? 1.0 : 0.0)
                         .animation(
-                            .spring(response: 0.22, dampingFraction: 0.76)
-                            .delay(Double(noteStore.activeDeckNotes.count) * 0.038),
+                            .deckCascade(
+                                index: noteStore.activeDeckNotes.count,
+                                count: cascadeCount,
+                                opening: isCascaded
+                            ),
                             value: isCascaded
                         )
                     }
-                    .transition(
-                        .asymmetric(
-                            insertion: .opacity,
-                            removal: .opacity.combined(with: .offset(x: 36))
-                        )
-                    )
-                    .onAppear {
-                        isCascaded = false
-                        DispatchQueue.main.async {
-                            isCascaded = true
-                        }
-                    }
-                    .onDisappear {
-                        isCascaded = false
-                    }
+                    .transition(.opacity)
                 } else {
                     idleCapsule
                         .transition(
@@ -76,7 +82,13 @@ struct EdgeDeckView: View {
                         )
                 }
             }
-            .animation(.easeInOut(duration: 0.20), value: deckState.isHovered)
+            .animation(.easeInOut(duration: 0.20), value: isStackMounted)
+        }
+        .onChange(of: deckState.isHovered) { _, hovered in
+            setDeckOpen(hovered)
+        }
+        .onChange(of: cascadeCount, initial: true) { _, count in
+            deckState.noteCount = count
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
         .background(Color.clear)
@@ -87,6 +99,43 @@ struct EdgeDeckView: View {
             } else {
                 deckState.panelMouseExited(windowManager: windowManager)
             }
+        }
+    }
+
+    private func fanAngle(index: Int, noteId: UUID) -> Double {
+        guard isCascaded, deckState.expandedNoteId != noteId else { return 0 }
+        return DeckCascade.fanAngle(index: index, noteCount: noteStore.activeDeckNotes.count)
+    }
+
+    private func setDeckOpen(_ open: Bool) {
+        unmountWork?.cancel()
+        unmountWork = nil
+
+        if open {
+            if !isStackMounted {
+                isCascaded = false
+                isStackMounted = true
+            }
+            DispatchQueue.main.async {
+                isCascaded = true
+            }
+        } else if deckState.closesInstantly {
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                isCascaded = false
+                isStackMounted = false
+            }
+        } else {
+            isCascaded = false
+            let work = DispatchWorkItem {
+                isStackMounted = false
+            }
+            unmountWork = work
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + DeckCascade.closeDuration(count: cascadeCount) + 0.05,
+                execute: work
+            )
         }
     }
 

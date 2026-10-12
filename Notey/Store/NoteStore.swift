@@ -108,23 +108,28 @@ final class NoteStore {
         }
     }
 
-    func seedDefaultNotesIfEmpty() {
+    private static let guideSeededKey = "hasSeededGuideNotesV1"
+
+    func seedGuideNotesIfFirstLaunch() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self.guideSeededKey) else { return }
+        defaults.set(true, forKey: Self.guideSeededKey)
         guard activeDeckNotes.isEmpty else { return }
 
         createNote(
-            title: "Getting started",
-            body: "Hover the dots at the edge of the screen to open your deck.",
+            title: "Welcome to Notey",
+            body: "Hover the edge of your screen to fan the deck. Click a note to write in it.",
             color: .yellow
         )
         createNote(
-            title: "Sprint planning",
-            body: "Review current velocity and rotate backlog reviews.",
-            color: .coral
+            title: "Try a checklist",
+            body: "☐ Click the checklist button in a note\n☐ Press Enter for a new item\n☐ Tick this one off",
+            color: .mint
         )
         createNote(
-            title: "Book recommendations",
-            body: "Read Designing Data-Intensive Applications and The Pragmatic Programmer.",
-            color: .mint
+            title: "Make it yours",
+            body: "Change my color from the bar at the bottom. Delete or archive me when you are done.",
+            color: .coral
         )
     }
 }

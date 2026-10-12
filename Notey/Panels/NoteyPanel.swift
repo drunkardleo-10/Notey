@@ -72,13 +72,11 @@ class NoteyPanel: NSPanel {
         level = .statusBar
         isOpaque = false
         backgroundColor = .clear
-        hasShadow = true
+        hasShadow = false
         isMovable = true
         hidesOnDeactivate = false
 
         styleMask = [.borderless, .nonactivatingPanel]
-
-        orderFrontRegardless()
     }
 
     override func sendEvent(_ event: NSEvent) {

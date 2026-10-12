@@ -13,29 +13,29 @@ private let onboardingSteps: [OnboardingStepInfo] = [
         step: 1,
         title: "Your notes wait at\nthe edge",
         body: "A thin strip on the right edge of your screen is all you see. Each stripe is a note, in its own color, so you can tell what is there at a glance.",
-        badgeText: "Nothing to click",
-        badgeDesc: "the pill sits out of the way until you need it"
+        badgeText: "Try it",
+        badgeDesc: "hover a tab on the right to peek at it"
     ),
     OnboardingStepInfo(
         step: 2,
         title: "Hover the edge to\nfan",
-        body: "Moving your cursor to the edge slides the notes out into a fanned stack. Hover any note to inspect its full text without clicking.",
-        badgeText: "Hover to fan",
-        badgeDesc: "cards lift and expand for preview reading"
+        body: "Moving your cursor to the edge slides the notes out into a fanned stack. Hover any note to lift it and read it without clicking.",
+        badgeText: "Try it",
+        badgeDesc: "move your cursor to the right edge"
     ),
     OnboardingStepInfo(
         step: 3,
         title: "Click a note to\nwrite in it",
         body: "The note grows into an editor in place. Type and it saves as you go — no save button, no window to manage. Pick a color from the row along the bottom.",
-        badgeText: "⌥⌘N",
-        badgeDesc: "creates a new note from anywhere"
+        badgeText: "Try it",
+        badgeDesc: "type in the note, pick a color. ⌥⌘N makes a new note"
     ),
     OnboardingStepInfo(
         step: 4,
         title: "Archive what you are\ndone with",
         body: "Archived notes leave the deck but are kept. Search the archive by title or by anything written inside a note, then restore it to the deck in one click.",
-        badgeText: "⌥⌘L",
-        badgeDesc: "opens the archive"
+        badgeText: "Try it",
+        badgeDesc: "search, select, restore. ⌥⌘L opens the archive"
     )
 ]
 
@@ -67,17 +67,9 @@ struct OnboardingView: View {
             width: NoteyLayout.onboardingWidth,
             height: NoteyLayout.onboardingHeight
         )
-        .background(Color(hex: 0xF7F4EC)) 
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.textPrimary.opacity(0.12), lineWidth: 1)
-        )
-        .shadow(
-            color: Color.textPrimary.opacity(0.3),
-            radius: 30,
-            y: 12
-        )
+        .background(OnboardingGlassPanel())
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .environment(\.colorScheme, .dark)
         .onExitCommand {
             handleComplete()
         }
@@ -93,12 +85,7 @@ struct OnboardingView: View {
             ZStack(alignment: .topLeading) {
                 stepContentView
                     .id(currentStep)
-                    .transition(
-                        .asymmetric(
-                            insertion: .opacity.combined(with: .offset(x: 28)),
-                            removal: .opacity.combined(with: .offset(x: -28))
-                        )
-                    )
+                    .transition(.blurReplace.combined(with: .scale(0.96, anchor: .leading)))
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .clipped()
@@ -111,12 +98,12 @@ struct OnboardingView: View {
                     ForEach(1...4, id: \.self) { s in
                         ZStack {
                             Capsule()
-                                .fill(Color.textPrimary.opacity(0.22))
+                                .fill(Color.white.opacity(0.22))
                                 .frame(width: 6, height: 6)
 
                             if s == currentStep {
                                 Capsule()
-                                    .fill(Color.textPrimary.opacity(0.72))
+                                    .fill(Color.white.opacity(0.72))
                                     .matchedGeometryEffect(id: "activeIndicatorPill", in: dotNamespace)
                                     .frame(width: 22, height: 6)
                             }
@@ -132,7 +119,7 @@ struct OnboardingView: View {
                     Button(action: { handleComplete() }) {
                         Text("Skip")
                             .font(NoteyFonts.ui(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.textMuted)
+                            .foregroundStyle(Color.white.opacity(0.5))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 6)
                     }
@@ -141,7 +128,7 @@ struct OnboardingView: View {
 
                 Button(action: {
                     if currentStep < 4 {
-                        withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.82)) {
                             currentStep += 1
                         }
                     } else {
@@ -150,18 +137,12 @@ struct OnboardingView: View {
                 }) {
                     Text(currentStep == 4 ? "Create my first note" : "Continue")
                         .font(NoteyFonts.ui(size: 13, weight: .bold))
-                        .foregroundStyle(Color.textPrimary)
+                        .foregroundStyle(Color(hex: 0x2C2622))
                         .padding(.vertical, 9)
                         .padding(.horizontal, currentStep == 4 ? 18 : 20)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.noteYellow)
-                                .shadow(
-                                    color: Color.noteYellow.opacity(0.4),
-                                    radius: 6,
-                                    x: 0,
-                                    y: 2
-                                )
                         )
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -177,13 +158,13 @@ struct OnboardingView: View {
             Text("STEP \(currentStep) OF 4")
                 .font(NoteyFonts.ui(size: 11, weight: .bold))
                 .tracking(1.4)
-                .foregroundStyle(Color.textMuted)
+                .foregroundStyle(Color.white.opacity(0.5))
                 .padding(.bottom, 10)
 
             Text(currentData.title)
                 .font(NoteyFonts.ui(size: 24, weight: .heavy))
                 .lineSpacing(2)
-                .foregroundStyle(Color.textPrimary)
+                .foregroundStyle(Color.white)
                 .tracking(-0.3)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 14)
@@ -191,22 +172,22 @@ struct OnboardingView: View {
             Text(currentData.body)
                 .font(NoteyFonts.ui(size: 13.5))
                 .lineSpacing(4)
-                .foregroundStyle(Color.textPrimary.opacity(0.75))
+                .foregroundStyle(Color.white.opacity(0.75))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 18)
 
             HStack(alignment: .center, spacing: 10) {
                 Text(currentData.badgeText)
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.white)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
-                    .background(Color.textPrimary.opacity(0.08))
+                    .background(Color.white.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 Text(currentData.badgeDesc)
                     .font(NoteyFonts.ui(size: 12))
-                    .foregroundStyle(Color.textMuted)
+                    .foregroundStyle(Color.white.opacity(0.5))
                     .lineLimit(2)
             }
             .padding(.bottom, 14)
@@ -216,7 +197,7 @@ struct OnboardingView: View {
                     HStack(spacing: 10) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.textPrimary.opacity(0.35), lineWidth: 1.5)
+                                .stroke(Color.white.opacity(0.35), lineWidth: 1.5)
                                 .frame(width: 18, height: 18)
 
                             if startOnLogin {
@@ -228,13 +209,13 @@ struct OnboardingView: View {
 
                         Text("Add to Login Items — open automatically at sign-in")
                             .font(NoteyFonts.ui(size: 12))
-                            .foregroundStyle(Color.textPrimary.opacity(0.85))
+                            .foregroundStyle(Color.white.opacity(0.85))
                             .lineLimit(2)
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.textPrimary.opacity(0.06))
+                    .background(Color.white.opacity(0.06))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(.plain)
@@ -256,3 +237,19 @@ struct OnboardingView: View {
     }
 }
 
+
+private struct OnboardingGlassPanel: View {
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 28, style: .continuous)
+        if #available(macOS 26.0, *) {
+            Color.clear
+                .glassEffect(.regular.tint(Color.black.opacity(0.28)), in: shape)
+        } else {
+            ZStack {
+                shape.fill(.ultraThinMaterial)
+                shape.fill(Color.black.opacity(0.35))
+                shape.strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+            }
+        }
+    }
+}

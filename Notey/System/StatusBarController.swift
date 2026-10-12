@@ -10,19 +10,22 @@ final class StatusBarController: NSObject {
     private let onShowDeck: () -> Void
     private let onToggleArchive: () -> Void
     private let onShowTour: () -> Void
+    private let onCheckForUpdates: () -> Void
 
     init(
         noteStore: NoteStore,
         onNewNote: @escaping () -> Void,
         onShowDeck: @escaping () -> Void,
         onToggleArchive: @escaping () -> Void,
-        onShowTour: @escaping () -> Void
+        onShowTour: @escaping () -> Void,
+        onCheckForUpdates: @escaping () -> Void
     ) {
         self.noteStore = noteStore
         self.onNewNote = onNewNote
         self.onShowDeck = onShowDeck
         self.onToggleArchive = onToggleArchive
         self.onShowTour = onShowTour
+        self.onCheckForUpdates = onCheckForUpdates
 
         super.init()
 
@@ -82,6 +85,14 @@ final class StatusBarController: NSObject {
         tourItem.target = self
         menu.addItem(tourItem)
 
+        let updateItem = NSMenuItem(
+            title: "Check for Updates…",
+            action: #selector(handleCheckForUpdates),
+            keyEquivalent: ""
+        )
+        updateItem.target = self
+        menu.addItem(updateItem)
+
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -110,6 +121,10 @@ final class StatusBarController: NSObject {
 
     @objc private func handleShowTour() {
         onShowTour()
+    }
+
+    @objc private func handleCheckForUpdates() {
+        onCheckForUpdates()
     }
 
     @objc private func handleQuit() {

@@ -2,14 +2,13 @@ import SwiftUI
 import AppKit
 
 @main
-struct NoteyApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
-    var body: some Scene {
-
-        Settings {
-            EmptyView()
-        }
+enum NoteyMain {
+    @MainActor
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        app.run()
     }
 }
 
@@ -25,13 +24,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var onboardingController: OnboardingPanelController!
     var statusBar: StatusBarController!
     var hotKeyManager: HotKeyManager!
+    var updaterController: UpdaterController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
+        updaterController = UpdaterController()
+
         noteStore.loadNotes()
 
-        noteStore.seedDefaultNotesIfEmpty()
+        noteStore.seedGuideNotesIfFirstLaunch()
 
         deckController = DeckPanelController(
             noteStore: noteStore,
@@ -50,13 +52,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         deckController.onSelectNote = { [weak self] note in
             guard let self else { return }
+            guard self.editorController.currentNote?.id != note.id else { return }
             self.deckController.isEditorOpen = true
-            self.deckController.deckState.reset()
             DispatchQueue.main.async {
                 self.editorController.openNote(note)
             }
         }
-        showOnboardingTour()
+        if !OnboardingPanelController.hasCompletedOnboarding {
+            showOnboardingTour()
+        }
 
         archiveController = ArchivePanelController(noteStore: noteStore)
 
@@ -87,6 +91,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             },
             onShowTour: { [weak self] in
                 self?.showOnboardingTour()
+            },
+            onCheckForUpdates: { [weak self] in
+                self?.updaterController.checkForUpdates()
             }
         )
     }

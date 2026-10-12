@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i '' "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"$VERSION\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: \".*\"/CURRENT_PROJECT_VERSION: \"$GITHUB_RUN_NUMBER\"/" project.yml
+          xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -project Notey.xcodeproj -scheme Notey -configuration Release \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent build/Build/Products/Release/Notey.app "dist/Notey-${GITHUB_REF_NAME#v}.zip"
+          ./scripts/make-dmg.sh "${GITHUB_REF_NAME#v}" build/Build/Products/Release/Notey.app
+          mkdir -p dmg-out
+          mv "dist/Notey-${GITHUB_REF_NAME#v}.dmg" dmg-out/
+
+      - name: Generate appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          SPARKLE_BIN=$(find build/SourcePackages/artifacts -type d -path "*Sparkle/bin" | head -1)
+          echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
+            --ed-key-file - \
+            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/" \
+            dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/appcast.xml
+            dmg-out/*.dmg
+          generate_release_notes: true
