@@ -146,7 +146,7 @@ The resulting `Notey-<version>.dmg` will be created in the `dist/` directory.
 | **Global Shortcuts** | Carbon Events API (`RegisterEventHotKey`) |
 | **Automatic Updates** | Sparkle 2 (`SPUStandardUpdaterController`, Ed25519 signatures) |
 | **Data Storage** | Local atomic JSON storage (`FileManager` + `JSONEncoder`/`JSONDecoder`) |
-| **Project & Packaging** | XcodeGen (`project.yml`), `make-dmg.sh`, GitHub Actions Release CI |
+| **Project & Packaging** | XcodeGen (`project.yml`), `scripts/make-dmg.sh` |
 
 ---
 
